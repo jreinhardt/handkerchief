@@ -58,10 +58,9 @@ html_template = """
 			}
 		</script>
 		<style>
-			div#wrapper { width: 100%, min-width:800;}
-			div#menu { width:40%; float:left; font-size:small;}
-			div#content { width:60%;}
-			div#comments { width:60%;}
+			div#wrapper { width: 100%, min-width:800; position:relative;}
+			div#menu { width:40%; position:absolute; left:0; font-size:small;}
+			div#col_right { width:60%; position:absolute; right:0;}
 		</style>
 	</head>
 	<body>
@@ -71,9 +70,11 @@ html_template = """
 				$menulinks
 				</ul>
 			</div>
-			<div id = "content">
-			</div>
-			<div id = "comments">
+			<div id = "col_right">
+				<div id = "content">
+				</div>
+				<div id = "comments">
+				</div>
 			</div>
 		</div>
 	</body>
