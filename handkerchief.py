@@ -81,7 +81,7 @@ html_template = """
 </html>
 """
 
-issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all' % sys.argv[1])
+issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all&direction=asc' % sys.argv[1])
 comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % sys.argv[1])
 if issue_request.ok and comment_request.ok:
 	data = {}
