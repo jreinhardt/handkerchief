@@ -35,25 +35,37 @@ html_template = """
 	<head>
 		<meta charset="utf-8"/>
 		<script type="text/javascript">
-			content = $content;
-			console.log(content);
+			issue_data = $issue_data;
+			comment_data = $comment_data;
 			function reload_content(id){
-				for(var i in content){
-					console.log(content[i],id);
-					if(content[i]["number"] == id){
-						document.getElementById("content").firstChild.nodeValue = content[i]["body"];
+				for(var i = 0; i < issue_data.length; i++){
+					if(issue_data[i]["number"] == id){
+						document.getElementById("content").firstChild.nodeValue = issue_data[i]["body"];
+						var comment_node = document.getElementById("comments");
+						while (comment_node.hasChildNodes()) {
+							comment_node.removeChild(comment_node.lastChild);
+						}
+						for(var j = 0; j < comment_data.length; j++){
+							if(comment_data[j]["issue_url"] == issue_data[i]["url"]){
+								var comment = document.createElement("div");
+								comment.appendChild(document.createTextNode(comment_data[j]["body"]));
+								comment_node.appendChild(comment);
+							}
+						}
 						break;
 					}
 				}
 			}
 		</script>
 		<style>
-			div#menu { width:400px; position:absolute; font-size:small;}
-			div#content { width:400px; position:absolute; left:400px;}
+			div#wrapper { width: 100%, min-width:800;}
+			div#menu { width:40%; float:left; font-size:small;}
+			div#content { width:60%;}
+			div#comments { width:60%;}
 		</style>
 	</head>
 	<body>
-		<div>
+		<div id="wrapper">
 			<div id = "menu">
 				<ul>
 				$menulinks
@@ -61,19 +73,22 @@ html_template = """
 			</div>
 			<div id = "content">
 			</div>
+			<div id = "comments">
+			</div>
 		</div>
 	</body>
 </html>
 """
 
-r = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all' % sys.argv[1])
-if r.ok:
+issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all' % sys.argv[1])
+comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % sys.argv[1])
+if issue_request.ok and comment_request.ok:
 	data = {}
-	data["content"] = r.text or r.content
-	issues = json.loads(data["content"])
+	data["issue_data"] = issue_request.text or issue_request.content
+	data["comment_data"] = comment_request.text or comment_request.content
 
 	menulinks = []
-	for issue in issues:
+	for issue in json.loads(data["issue_data"]):
 		nr = int(issue["number"])
 		menulinks.append("""<li><a href="javascript:reload_content('%d')">#%d: %s</a></li>""" % (nr,nr,issue["title"]))
 	data["menulinks"] = "\n".join(menulinks)
