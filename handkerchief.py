@@ -24,7 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-import sys
+import argparse
 import requests
 import json
 from string import Template
@@ -81,8 +81,14 @@ html_template = """
 </html>
 """
 
-issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all&direction=asc' % sys.argv[1])
-comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % sys.argv[1])
+parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
+parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
+parser.add_argument("reponame",help="name of the repo in the form username/reponame")
+
+args = parser.parse_args()
+
+issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all&direction=asc' % args.reponame)
+comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % args.reponame)
 if issue_request.ok and comment_request.ok:
 	data = {}
 	data["issue_data"] = issue_request.text or issue_request.content
@@ -94,7 +100,7 @@ if issue_request.ok and comment_request.ok:
 		menulinks.append("""<li><a href="javascript:reload_content('%d')">#%d: %s</a></li>""" % (nr,nr,issue["title"]))
 	data["menulinks"] = "\n".join(menulinks)
 
-	fid = open("tissues.html","w","utf8")
+	fid = open(args.outname,"w","utf8")
 	fid.write(Template(html_template).substitute(data))
 	fid.close()
 else:

@@ -15,6 +15,10 @@ Just call the script with the user or organisation and repository name
 
     handkerchief.py jreinhardt/tissues
 
+## Dependencies
+
+Requires [Python 2.7](http://www.python.org) and the [requests library](http://www.python-requests.org/).
+
 ## License
 
 Handkerchief is licensed under the [MIT license](http://opensource.org/licenses/MIT)
