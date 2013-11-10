@@ -27,6 +27,7 @@
 import argparse
 import requests
 import json
+from sys import exit
 from string import Template
 from codecs import open
 
@@ -95,8 +96,13 @@ parser.add_argument("reponame",help="name of the repo in the form username/repon
 
 args = parser.parse_args()
 
-issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all&direction=asc' % args.reponame)
-comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % args.reponame)
+try:
+	issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all&direction=asc' % args.reponame)
+	comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % args.reponame)
+except requests.exceptions.ConnectionError:
+	print "Could not connect to GitHub. Please check your internet connection"
+	exit(1)
+
 if issue_request.ok and comment_request.ok:
 	data = {}
 	data["issue_data"] = issue_request.text or issue_request.content
@@ -112,4 +118,6 @@ if issue_request.ok and comment_request.ok:
 	fid.write(Template(html_template).substitute(data))
 	fid.close()
 else:
+	print "There was a problem with the API request:"
 	print r
+	exit(1)
