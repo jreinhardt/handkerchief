@@ -27,6 +27,8 @@
 import argparse
 import requests
 import json
+import subprocess
+import re
 from sys import exit
 from string import Template
 from codecs import open
@@ -90,9 +92,27 @@ html_template = """
 </html>
 """
 
+#try to figure out repo from git repo in current directory
+reponame = None
+try:
+	remote_data = subprocess.check_output(["git","remote","-v","show"])
+	branches = {}
+	for line in remote_data.split("\n"):
+		if line.strip() == "":
+			continue
+		remote_match = re.match("([a-zA-Z0-9_]*)\s*git@github.com:([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)",line)
+		if not remote_match is None:
+			branches[remote_match.group(1)] = remote_match.group(2)
+
+	reponame = branches.values()[0]
+	if "origin" in branches:
+		reponame = branches["origin"]
+except OSError:
+	pass
+
 parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
 parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
-parser.add_argument("reponame",help="name of the repo in the form username/reponame")
+parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo in the form username/reponame. If not given, handkerchief tries to figure it out from git.")
 
 args = parser.parse_args()
 
