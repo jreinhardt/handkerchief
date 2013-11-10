@@ -38,16 +38,23 @@ html_template = """
 			issue_data = $issue_data;
 			comment_data = $comment_data;
 			function reload_content(id){
+				var comment_node = document.getElementById("comments");
+				while (comment_node.hasChildNodes()) {
+					comment_node.removeChild(comment_node.lastChild);
+				}
+
 				for(var i = 0; i < issue_data.length; i++){
 					if(issue_data[i]["number"] == id){
-						document.getElementById("content").firstChild.nodeValue = issue_data[i]["body"];
-						var comment_node = document.getElementById("comments");
-						while (comment_node.hasChildNodes()) {
-							comment_node.removeChild(comment_node.lastChild);
-						}
+						document.getElementById("title").firstChild.nodeValue = issue_data[i]["title"];
+
+						var comment = document.createElement("div");
+						comment.setAttribute("class","comment");
+						comment.appendChild(document.createTextNode(issue_data[i]["body"]));
+						comment_node.appendChild(comment);
 						for(var j = 0; j < comment_data.length; j++){
 							if(comment_data[j]["issue_url"] == issue_data[i]["url"]){
 								var comment = document.createElement("div");
+								comment.setAttribute("class","comment");
 								comment.appendChild(document.createTextNode(comment_data[j]["body"]));
 								comment_node.appendChild(comment);
 							}
@@ -61,6 +68,7 @@ html_template = """
 			div#wrapper { width: 100%, min-width:800; position:relative;}
 			div#menu { width:40%; position:absolute; left:0; font-size:small;}
 			div#col_right { width:60%; position:absolute; right:0;}
+			.comment {margin: 10px; width: 80%;}
 		</style>
 	</head>
 	<body>
@@ -71,8 +79,8 @@ html_template = """
 				</ul>
 			</div>
 			<div id = "col_right">
-				<div id = "content">
-				</div>
+				<h3 id = "title">
+				</h3>
 				<div id = "comments">
 				</div>
 			</div>
