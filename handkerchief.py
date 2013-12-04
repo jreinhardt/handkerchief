@@ -66,19 +66,58 @@ html_template = """
 					}
 				}
 			}
+			//this states which entries to filter, i.e. remove
+			display_filter = {state: 'open'};
+			function populate_menu(){
+				//clear menu
+				filtered_items = document.getElementById("filtered");
+				while (filtered_items.hasChildNodes()) {
+					filtered_items.removeChild(filtered_items.lastChild);
+				}
+
+				for(var i = 0; i < issue_data.length; i++){
+					if(issue_data[i]['state'] != display_filter.state){
+						var issue_title = document.createTextNode(issue_data[i]["title"])
+
+						var issue_link = document.createElement("a");
+						issue_link.setAttribute("href",'javascript:reload_content(' + issue_data[i]["number"].toString() + ')')
+						issue_link.appendChild(issue_title);
+
+						var issue_item = document.createElement("li")
+						issue_item.appendChild(issue_link)
+
+						filtered_items.appendChild(issue_item);
+					}
+				}
+			}
+			function toggle_state_filter(){
+				if (display_filter.state == 'open'){
+					display_filter.state = 'closed';
+					document.getElementById("state_filter").innerHTML = 'State: Open';
+				} else if (display_filter.state == 'closed'){
+					display_filter.state = 'both';
+					document.getElementById("state_filter").innerHTML = 'State: Both';
+				} else if (display_filter.state == 'both'){
+					display_filter.state = 'open';
+					document.getElementById("state_filter").innerHTML = 'State: Closed';
+				}
+				populate_menu();
+			}
+
 		</script>
 		<style>
 			div#wrapper { width: 100%, min-width:800; position:relative;}
 			div#menu { width:40%; position:absolute; left:0; font-size:small;}
 			div#col_right { width:60%; position:absolute; right:0;}
-			.comment {margin: 10px; width: 80%;}
+			div.comment {margin: 10px; width: 80%; padding: 10px; border: 1px solid grey;}
 		</style>
 	</head>
-	<body>
+	<body onload="populate_menu()">
 		<div id="wrapper">
 			<div id = "menu">
 				<ul>
-				$menulinks
+					<li><a id="state_filter" href="javascript:toggle_state_filter()">State: Closed</a></li>
+				<ul id = "filtered">
 				</ul>
 			</div>
 			<div id = "col_right">
@@ -91,6 +130,22 @@ html_template = """
 	</body>
 </html>
 """
+
+#url must contain some parameters
+def get_all_pages(url):
+	url_temp = url + "&page=%d"
+
+	data = []
+	i = 1
+	request = requests.get(url_temp % i)
+	data += request.json()
+	re_last_page = '<https://api.github.com/repositories/([0-9]*)/issues/comments\?page=([0-9]*)>; rel="last"'
+	last_page = int(re.match(re_last_page,request.headers["link"].split(',')[-1].strip()).group(2))
+	
+	for i in range(2,last_page+1):
+		request = requests.get(url_temp % i)
+		data += request.json()
+	return data
 
 #try to figure out repo from git repo in current directory
 reponame = None
@@ -116,28 +171,31 @@ parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo
 
 args = parser.parse_args()
 
+issues = []
 try:
-	issue_request = requests.get('https://api.github.com/repos/%s/issues?state=open&filter=all&direction=asc' % args.reponame)
-	comment_request = requests.get('https://api.github.com/repos/%s/issues/comments' % args.reponame)
+	for state in ["open","closed"]:
+		issue_request = requests.get('https://api.github.com/repos/%s/issues?state=%s&filter=all&direction=asc' % (args.reponame,state))
+		if issue_request.ok:
+			issues += issue_request.json()
+		else:
+			print "There is a problem with the request"
+			print issue_request
+			exit(1)
+	comments = get_all_pages('https://api.github.com/repos/%s/issues/comments?' % args.reponame)
 except requests.exceptions.ConnectionError:
 	print "Could not connect to GitHub. Please check your internet connection"
 	exit(1)
 
-if issue_request.ok and comment_request.ok:
-	data = {}
-	data["issue_data"] = issue_request.text or issue_request.content
-	data["comment_data"] = comment_request.text or comment_request.content
+#menulinks = []
+#for issue in data["issue_data"]:
+#	nr = int(issue["number"])
+#	menulinks.append("""<li><a href="javascript:reload_content('%d')">#%d: %s</a></li>""" % (nr,nr,issue["title"]))
+#data["menulinks"] = "\n".join(menulinks)
 
-	menulinks = []
-	for issue in json.loads(data["issue_data"]):
-		nr = int(issue["number"])
-		menulinks.append("""<li><a href="javascript:reload_content('%d')">#%d: %s</a></li>""" % (nr,nr,issue["title"]))
-	data["menulinks"] = "\n".join(menulinks)
+data = {}
+data["issue_data"] = json.dumps(issues)
+data["comment_data"] = json.dumps(comments)
 
-	fid = open(args.outname,"w","utf8")
-	fid.write(Template(html_template).substitute(data))
-	fid.close()
-else:
-	print "There was a problem with the API request:"
-	print r
-	exit(1)
+fid = open(args.outname,"w","utf8")
+fid.write(Template(html_template).substitute(data))
+fid.close()
