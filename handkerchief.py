@@ -34,6 +34,7 @@ from string import Template
 from codecs import open
 
 html_template = """
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="utf-8"/>
