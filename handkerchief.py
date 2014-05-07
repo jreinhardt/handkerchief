@@ -195,19 +195,27 @@ $markdownjslicense
 """
 
 #url must contain some parameters
-def get_all_pages(url):
+def get_all_pages(url,re_last_page):
 	url_temp = url + "&page=%d"
 
 	data = []
 	i = 1
 	request = requests.get(url_temp % i)
+	if not request.ok:
+		print "There is a problem with the request"
+		print request
+		exit(1)
 	data += request.json()
-	re_last_page = '<https://api.github.com/repositories/([0-9]*)/issues/comments\?page=([0-9]*)>; rel="last"'
+	print request.headers["link"]
 	if request.headers["link"] is None:
 		#only one page
 		return data
 	else:
-		last_page = int(re.match(re_last_page,request.headers["link"].split(',')[-1].strip()).group(2))
+		result = re.match(re_last_page,request.headers["link"].split(',')[-1].strip())
+		if result is None:
+			print request.headers["link"]
+
+		last_page = int(result.group(2))
 		
 		for i in range(2,last_page+1):
 			request = requests.get(url_temp % i)
@@ -241,14 +249,10 @@ args = parser.parse_args()
 issues = []
 try:
 	for state in ["open","closed"]:
-		issue_request = requests.get('https://api.github.com/repos/%s/issues?state=%s&filter=all&direction=asc' % (args.reponame,state))
-		if issue_request.ok:
-			issues += issue_request.json()
-		else:
-			print "There is a problem with the request"
-			print issue_request
-			exit(1)
-	comments = get_all_pages('https://api.github.com/repos/%s/issues/comments?' % args.reponame)
+		issues += get_all_pages('https://api.github.com/repos/%s/issues?state=%s&filter=all&direction=asc' % (args.reponame,state),
+			'<https://api.github.com/repositories/([0-9]*)/issues\?state=%s&filter=all&direction=asc&page=([0-9]*)>; rel="last"' % state)
+	comments = get_all_pages('https://api.github.com/repos/%s/issues/comments?' % args.reponame,
+		'<https://api.github.com/repositories/([0-9]*)/issues/comments\?page=([0-9]*)>; rel="last"')
 except requests.exceptions.ConnectionError:
 	print "Could not connect to GitHub. Please check your internet connection"
 	exit(1)
