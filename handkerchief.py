@@ -206,8 +206,7 @@ def get_all_pages(url,re_last_page):
 		print request
 		exit(1)
 	data += request.json()
-	print request.headers["link"]
-	if request.headers["link"] is None:
+	if not 'link' in request.headers:
 		#only one page
 		return data
 	else:
