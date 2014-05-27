@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!--
+$handkerchieflicense
+
+Handkerchief contains markdown-js
+https://github.com/evilstreak/markdown-js
+
+$markdownjslicense
+-->
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script type="text/javascript">
+		$markdownjs
+		</script>
+		<script type="text/javascript">
+		$jsinfrastructure
+		</script>
+		<style type="text/css">
+			body{ margin: 0; padding: 0; line-height: 1.5em; }
+			div#wrapper {width: 900px; margin: 0 auto;}
+			div#title {margin: 10px;}
+			div#commentcontainer {float: left; width: 100%;}
+			div#comments {margin-left:450px; padding: 10px;}
+			.comment {padding: 10px; border: 1px solid grey;}
+			.active {padding: 10px; border: 1px solid green;}
+			div#filtercontainer {float: left; width: 150px; margin-left: -900px;}
+			div#issuecontainer {float: left; width: 250px; margin-left: -750px;}
+		</style>
+	</head>
+	<body onload="filter_state('open')">
+		<div id="wrapper">
+			<div id="title"><h1>Title</h1></div>
+			<div id="commentcontainer">
+				<div id = "comments">
+					Issuetitle, Date, State, Link, Title
+					Comments
+				</div>
+			</div>
+			<div id = "filtercontainer">
+				<h3>State</h3>
+				<a id="filter_state_open" href="javascript:filter_state('open')">Open</a><br>
+				<a id="filter_state_closed" href="javascript:filter_state('closed')">Closed</a><br>
+				<h3>Milestone</h3>
+				$milestonefilters
+				<h3>Label</h3>
+				$labelfilters
+				<h3>Special</h3>
+				<a id="filter_no_milestone" href="javascript:filter_not_in_milestone()">Not in Milestone</a>
+			</div>
+			<div id = "issuecontainer">
+				Issues
+				<ul id = "filtered">
+					<li> Eimer </li>
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>
