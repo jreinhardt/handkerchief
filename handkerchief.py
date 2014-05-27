@@ -217,6 +217,7 @@ def get_all_pages(url,re_last_page):
 	request = requests.get(url_temp % i)
 	if not request.ok:
 		print "There is a problem with the request"
+		print url_temp % i
 		print request
 		exit(1)
 	data += request.json()
@@ -245,7 +246,7 @@ try:
 			continue
 		remote_match = re.match("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)",line)
 		if not remote_match is None:
-			branches[remote_match.group(1)] = remote_match.group(2)
+			branches[remote_match.group(1)] = remote_match.group(5)
 
 	reponame = branches.values()[0]
 	if "origin" in branches:
