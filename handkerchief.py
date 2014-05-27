@@ -229,7 +229,7 @@ try:
 	for line in remote_data.split("\n"):
 		if line.strip() == "":
 			continue
-		remote_match = re.match("([a-zA-Z0-9_]*)\s*git@github.com:([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)",line)
+		remote_match = re.match("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)",line)
 		if not remote_match is None:
 			branches[remote_match.group(1)] = remote_match.group(2)
 
