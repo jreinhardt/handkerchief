@@ -96,6 +96,16 @@ $markdownjslicense
 				while (filtered_items.hasChildNodes()) {
 					filtered_items.removeChild(filtered_items.lastChild);
 				}
+				//clear active class
+				document.getElementById("filter_state_open").setAttribute("class","")
+				document.getElementById("filter_state_closed").setAttribute("class","")
+				document.getElementById("filter_no_milestone").setAttribute("class","")
+				for(var i = 0; i < issue_data.length; i++){
+					document.getElementById("filter_state_" + issue_data[i]['state']).setAttribute("class","")
+					if(issue_data[i]['milestone'] != null){
+						document.getElementById("filter_milestone_" + issue_data[i]['milestone']['title']).setAttribute("class","")
+					}
+				}
 			}
 			function add_issue(issue){
 				filtered_items = document.getElementById("filtered");
@@ -111,6 +121,7 @@ $markdownjslicense
 			}
 			function filter_state(state){
 				clear_issues();
+				document.getElementById("filter_state_" + state).setAttribute("class","active")
 				for(var i = 0; i < issue_data.length; i++){
 					if(issue_data[i]['state'] != state){
 						add_issue(issue_data[i]);
@@ -119,6 +130,7 @@ $markdownjslicense
 			}
 			function filter_label(label){
 				clear_issues();
+				document.getElementById("filter_label_" + label).setAttribute("class","active")
 				for(var i = 0; i < issue_data.length; i++){
 					for(var j = 0; j < issue_data[i]['labels'].length; j++){
 						if(issue_data[i]['labels'][j]['name'] == label){
@@ -129,6 +141,7 @@ $markdownjslicense
 			}
 			function filter_milestone(title){
 				clear_issues();
+				document.getElementById("filter_milestone_" + title).setAttribute("class","active")
 				for(var i = 0; i < issue_data.length; i++){
 					if(issue_data[i]['milestone'] != null){
 						if(issue_data[i]['milestone']['title'] == title){
@@ -139,6 +152,7 @@ $markdownjslicense
 			}
 			function filter_not_in_milestone(){
 				clear_issues();
+				document.getElementById("filter_no_milestone").setAttribute("class","active")
 				for(var i = 0; i < issue_data.length; i++){
 					if(issue_data[i]['milestone'] == null){
 						add_issue(issue_data[i]);
@@ -174,14 +188,14 @@ $markdownjslicense
 			</div>
 			<div id = "filtercontainer">
 				<h3>State</h3>
-				<a id="state_filter" href="javascript:filter_state('open')">Open</a><br>
-				<a id="state_filter" href="javascript:filter_state('closed')">Closed</a><br>
+				<a id="filter_state_open" href="javascript:filter_state('open')">Open</a><br>
+				<a id="filter_state_closed" href="javascript:filter_state('closed')">Closed</a><br>
 				<h3>Milestone</h3>
 				$milestonefilters
 				<h3>Label</h3>
 				$labelfilters
 				<h3>Special</h3>
-				<a id="state_filter" href="javascript:filter_not_in_milestone()">Not in Milestone</a>
+				<a id="filter_no_milestone" href="javascript:filter_not_in_milestone()">Not in Milestone</a>
 			</div>
 			<div id = "issuecontainer">
 				Issues
@@ -265,10 +279,10 @@ for issue in issues:
 		milestones.append(issue["milestone"]["title"])
 
 data = {}
-data["labelfilters"] = "\n".join("""<a href="javascript:filter_label('%s')">%s</a><br>""" % 
-	(label,label) for label in set(labels))
-data["milestonefilters"] = "\n".join("""<a href="javascript:filter_milestone('%s')">%s</a><br>""" % 
-	(title,title) for title in set(milestones))
+data["labelfilters"] = "\n".join("""<a id="filter_label_%s" href="javascript:filter_label('%s')">%s</a><br>""" %
+	(l,l,l) for l in set(labels))
+data["milestonefilters"] = "\n".join("""<a id="filter_milestone_%s" href="javascript:filter_milestone('%s')">%s</a><br>""" %
+	(t,t,t) for t in set(milestones))
 data["markdownjslicense"] = license_handkerchief
 data["handkerchieflicense"] = license_handkerchief
 data["markdownjs"] = markdownjs
