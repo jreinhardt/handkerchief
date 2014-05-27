@@ -17,15 +17,27 @@ $markdownjslicense
 		$jsinfrastructure
 		</script>
 		<style type="text/css">
-			body{ margin: 0; padding: 0; line-height: 1.5em; }
+			body{ 
+        margin: 0; 
+        padding: 0; 
+        line-height: 1.5em; 
+        font-family: "Helvetica Neue", Helvetica, Arial, Sans-serif;
+      }
 			div#wrapper {width: 900px; margin: 0 auto;}
 			div#title {margin: 10px;}
 			div#commentcontainer {float: left; width: 100%;}
 			div#comments {margin-left:450px; padding: 10px;}
 			.comment {padding: 10px; border: 1px solid grey;}
-			.active {padding: 10px; border: 1px solid green;}
-			div#filtercontainer {float: left; width: 150px; margin-left: -900px;}
-			div#issuecontainer {float: left; width: 250px; margin-left: -750px;}
+			#filtercontainer .active {
+        font-weight: bold;
+        text-decoration: none;
+        color: rgb(60,155,175);
+      }
+			#filtercontainer {float: left; width: 150px; margin-left: -900px;}
+      a{ 
+        color: rgb(60,60,60);
+      }
+			#issuecontainer {float: left; width: 250px; margin-left: -750px;}
 		</style>
 	</head>
 	<body onload="filter_state('open')">
@@ -48,9 +60,9 @@ $markdownjslicense
 				<h3>Special</h3>
 				<a id="filter_no_milestone" href="javascript:filter_not_in_milestone()">Not in Milestone</a>
 			</div>
-			<div id = "issuecontainer">
+			<div id="issuecontainer">
 				Issues
-				<ul id = "filtered">
+				<ul id="filtered">
 					<li> Eimer </li>
 				</ul>
 			</div>
