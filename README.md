@@ -17,8 +17,9 @@ Clone the repository anywhere onto your machine and just call the script with th
 		
 If you are on a mac you can optionally add the following to your ~/.bash_profile.
 
+```bash
 	function handkerchief {
-		\# change this path to the location of handkerchief.py
+		# change this path to the location of handkerchief.py
 		hand=~/handkerchief/handkerchief.py
 		if [[ $1 != "" ]] ; then
 	    python $hand $1
@@ -33,6 +34,7 @@ If you are on a mac you can optionally add the following to your ~/.bash_profile
 	    fi
 		fi
 	}
+```
 	
 Now you can run `handkerchief jreinhardt/tissues` or if you are within the repository just `handkerchief`.
 
@@ -42,12 +44,12 @@ Requires [Python 2.7](http://www.python.org) and the [requests library](http://w
 
 Installing dependencies:
 
-
-	\# using homebrew
+```bash
+	# using homebrew
 	brew install python
-	\# using pip
+	# using pip
 	pip install requests
-
+````
 
 ## License
 
