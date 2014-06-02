@@ -141,7 +141,6 @@ a{
 /* ------------------ */
 /* Label */
 .label, .milestone{
-  color: rgb(0,0,0);
   width: 100%;
   line-height: 100%;
   border-radius: 3px;
@@ -180,24 +179,27 @@ a{
   text-decoration: none;
   position: relative;
   z-index: 2;
-  color: rgb(0,0,0);
+  color: rgb(100,100,100);
   cursor: pointer;
   display: block;
   padding: 4px 5px 4px;
   transition: background-color .5s ease .0s;
 }
-.label.active.white-label a{
-  color: rgb(255,255,255);
-}
 .label:not(.active) a:hover, .milestone a:hover{
   background-color: rgb(235,235,235);
-}
+  }
 .milestone a{
   color: rgb(100,100,100);
 }
 .milestone.active a{
   color: rgb(0,0,0);
   font-weight: bold;
+}
+.label.active a{
+  color: rgb(0,0,0);
+}
+.label.active.white-label a{
+  color: rgb(255,255,255);
 }
 /* ------------------ */
 /* Issues */
@@ -307,6 +309,7 @@ a{
   margin: 0 0 15px;
 }
 .issue-title .issue-id{
+  padding-left: 10px;
   color: rgb(200,200,200);
 }
 .issue-details{
@@ -323,6 +326,7 @@ a{
   border-radius: 3px;
   color: rgb(255,255,255);
   text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  background-color: rgb(110,200,70);
 }
 .issue-details .status.open{
   background-color: rgb(110,200,70);
