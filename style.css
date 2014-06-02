@@ -144,7 +144,6 @@ a{
   color: rgb(0,0,0);
   width: 100%;
   line-height: 100%;
-  padding: 4px 5px 4px;
   border-radius: 3px;
   float: left;
   margin-bottom: 4px;
@@ -156,27 +155,48 @@ a{
 }
 .label .bg{
   top: 5px;
-  right: 0;
+  right: 5px;
   position: absolute;
   content: "";
   display: block;
   width: 14px;
   height: 14px;
   border-radius: 3px;
-  z-index: 1;
+  z-index: 3;
+  transition: width .1s ease .0s;
+}
+.label:hover .bg{
+  width: 20px;
 }
 .label.active .bg{
-  top: 0px;
+  top: 0;
+  right: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
 }
-.label a{
+.label a, .milestone a{
+  border-radius: 3px;
   text-decoration: none;
   position: relative;
   z-index: 2;
   color: rgb(0,0,0);
+  cursor: pointer;
+  display: block;
+  padding: 4px 5px 4px;
+  transition: background-color .5s ease .0s;
 }
-.milestone.active{
+.label.active.white-label a{
+  color: rgb(255,255,255);
+}
+.label:not(.active) a:hover, .milestone a:hover{
+  background-color: rgb(235,235,235);
+}
+.milestone a{
+  color: rgb(100,100,100);
+}
+.milestone.active a{
+  color: rgb(0,0,0);
   font-weight: bold;
 }
 /* ------------------ */
@@ -212,44 +232,36 @@ a{
   margin: 0 0 0;
 }
 .issue-item{
+  width: 100%;
+  float: left;
   position: relative;
-  padding: 7px 15px;
   border-bottom: 1px solid rgb(240,240,240);
+  transition: background-color .5s ease .0s;
 }
 .issue-item a{
+  width: 100%;
+  float: left;
+  display: blockj;
+  padding: 7px 15px;
   text-decoration: none;
+  -moz-box-sizing: border-box; 
+  -webkit-box-sizing: border-box; 
+  box-sizing: border-box;
+}
+.issue-item:hover{
+   background-color: rgba(242,248,250,0.4); 
 }
 .issue-item.active a{
   text-decoration: none;
   font-weight: bold;
   color: rgb(85,85,85);
+  cursor: default;
 }
 .issue-item.active{
   background-color: rgb(242,248,250);
   border-color: rgb(225,235,240);
   box-shadow: 0 -1px 0 rgb(225,235,240), -1px 0 0 rgb(225,235,240), 1px 0 0 rgb(225,235,240);
 }
-/*.issue-item.active:before, .issue-item.active:after{
-  content: "";
-  display: block;
-  width: 0;
-  height: 0;
-  border-width: 8px;
-  border-style: solid;
-  border-color: transparent transparent transparent rgb(225,235,240);
-  background: transparent;
-  position: absolute;
-  right: -16px;
-  top: 10px;
-  z-index: 1;
-}
-.issue-item.active:after{
-  right: -15px;
-  top: 10px;
-  border-width: 8px;
-  border-color: transparent transparent transparent rgb(242,248,250);
-  z-index: 2;
-}*/
 .issue-item.active:before, .issue-item.active:after{
   content: "";
   display: block;
