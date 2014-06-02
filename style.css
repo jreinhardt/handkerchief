@@ -141,6 +141,7 @@ a{
 /* ------------------ */
 /* Label */
 .label, .milestone{
+  display: none;
   width: 100%;
   line-height: 100%;
   border-radius: 3px;
@@ -151,6 +152,9 @@ a{
   -webkit-box-sizing: border-box; 
   box-sizing: border-box;
   text-decoration: none;
+}
+.label.visible, .milestone.visible{
+  display: block;
 }
 .label .bg{
   top: 5px;
@@ -234,11 +238,15 @@ a{
   margin: 0 0 0;
 }
 .issue-item{
+  display: none;
   width: 100%;
   float: left;
   position: relative;
   border-bottom: 1px solid rgb(240,240,240);
   transition: background-color .5s ease .0s;
+}
+.issue-item.visible{
+  display: block;
 }
 .issue-item a{
   width: 100%;
@@ -291,6 +299,7 @@ a{
 /* ------------------ */
 /* Issue */
 .issue{
+  display: none;
   padding-top: 10px;
   float: left;
   z-index: 2;
@@ -302,6 +311,9 @@ a{
   -moz-box-sizing: border-box; 
   -webkit-box-sizing: border-box; 
   box-sizing: border-box;
+}
+.issue.visible{
+  display: block;
 }
 .issue-title{
   font-weight: normal;
