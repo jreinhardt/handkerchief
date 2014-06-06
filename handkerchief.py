@@ -121,7 +121,7 @@ try:
 	if not repo_request.ok:
 		print "There is a problem with the request"
 		print repo_url % args.reponame
-		print request
+		print repo_request
 		exit(1)
 	data['repo'] = repo_request.json()
 	
