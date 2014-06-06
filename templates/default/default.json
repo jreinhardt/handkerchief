@@ -1,0 +1,5 @@
+{
+"html" : "default.html",
+"css" : ["style.css"],
+"js" : ["markdown.js", "default.js"]
+}
