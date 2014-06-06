@@ -62,21 +62,21 @@
 				<div class="status {{ issue['status'] }}">{{ issue['status'] }}</div>
 				<div class="issue-author"><strong>{{ issue['user']['login'] }}</strong> opened this issue on {{ issue['created_at'] }} • {{ issue['comments'] }}</div>
 			</div>
-
-			{% for comment in comments %}
-			<div class="author">
-				<img src="{{ comment['user']['avatar_url'] }}" alt="{{ comment['user']['login'] }}" />
-			</div>
-			<div class="comment">
-				<div class="comment-details">
-					<div class="comment-author"><strong>{{ comment['user']['login'] }}</strong> opened this issue on {{ issue['created_at'] }}</div>
-				</div>
-				<div class="comment-content">
-					{{ comment['body'] }}
-				</div>
-			</div>
-			{% endfor %}
 			{% endfor %}
 		</div>
+
+		{% for comment in comments %}
+		<div class="author">
+			<img src="{{ comment['user']['avatar_url'] }}" alt="{{ comment['user']['login'] }}" />
+		</div>
+		<div class="comment">
+			<div class="comment-details">
+				<div class="comment-author"><strong>{{ comment['user']['login'] }}</strong> commented on this issue on {{ comment['created_at'] }}</div>
+			</div>
+			<div class="comment-content">
+				{{ comment['body'] }}
+			</div>
+		</div>
+		{% endfor %}
 	</body>
 </html>
