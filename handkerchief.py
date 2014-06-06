@@ -29,10 +29,11 @@ import requests
 import json
 import subprocess
 import re
+import base64
 from sys import exit
 from string import Template
 from codecs import open
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, BaseLoader
 from os.path import join
 
 re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)")
@@ -50,6 +51,27 @@ milestone_url = 'https://api.github.com/repos/%s/milestones?'
 milestone_last_re = '<https://api.github.com/repositories/([0-9]*)/milestones\?page=([0-9]*)>; rel="last"'
 
 repo_url = 'https://api.github.com/repos/%s?'
+file_url = 'https://api.github.com/repos/%s/contents/%s'
+
+def get_github_content(repo,path):
+	request = requests.get(file_url % (repo,path))
+	if not request.ok:
+		print "There is a problem with the request"
+		print file_url % (repo,path)
+		print request
+		exit(1)
+	if not request.json()['encoding'] == 'base64':
+		raise RuntimeError("Unknown Encoding encountered when fetching %s from repo %s: %s" % (path,repo,request.json()['encoding']))
+	return request.json()['content'].decode('base64').decode('utf8')
+
+class GitHubLoader(BaseLoader):
+    def __init__(self, repo, layout):
+	self.repo = repo
+        self.layout = layout
+
+    def get_source(self, environment, template):
+	source = get_github_content(self.repo,'templates/%s/%s' % (self.layout,template))
+	return source,None, lambda: False
 
 #url must contain some parameters
 def get_all_pages(url,re_last_page):
@@ -101,13 +123,10 @@ except OSError:
 parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
 parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
 parser.add_argument("-t",dest="template",default="default",help="filename of a template to use")
-parser.add_argument("-l",dest="local",default=True,help="use local templates instead")
+parser.add_argument("-l",dest="local",action="store_true",help="use local templates instead")
 parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo in the form username/reponame. If not given, handkerchief tries to figure it out from git.")
 
 args = parser.parse_args()
-
-if not args.local:
-	raise ValueError("Nonlocal templates not yet supported")
 
 #request data from api
 data = {}
@@ -147,8 +166,21 @@ if args.local:
 	data['javascript'] = [{'name' : n, 'content' : open(join(troot,n)).read()} for n in params['js']]
 	data['stylesheets'] = [open(join(troot,n)).read() for n in params['css']]
 else:
-	#TODO: load template from github
-	pass
+	params = get_github_content('jreinhardt/handkerchief','templates/%s/%s.json' % (args.template,args.template))
+	params = json.loads(params)
+
+	#load template
+	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.template))
+	template = env.get_template(params['html'])
+
+	data['javascript'] = []
+	data['stylesheets'] = []
+	for n in params['js']:
+		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n))
+		data['javascript'].append({'name' : n, 'content' : content})
+	for n in params['css']:
+		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n))
+		data['stylesheets'].append(content)
 
 #populate template
 fid = open(args.outname,"w","utf8")
