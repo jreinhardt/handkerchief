@@ -124,6 +124,7 @@ parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTM
 parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
 parser.add_argument("-t",dest="template",default="default",help="filename of a template to use")
 parser.add_argument("-l",dest="local",action="store_true",help="use local templates instead")
+parser.add_argument("-a",dest="local_avatars",action="store_true",help="embed avatars, leads to large results")
 parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo in the form username/reponame. If not given, handkerchief tries to figure it out from git.")
 
 args = parser.parse_args()
@@ -152,7 +153,16 @@ except requests.exceptions.ConnectionError:
 	print "Could not connect to GitHub. Please check your internet connection"
 	exit(1)
 
-#TODO: fetch avatars and convert to base64
+#fetch avatars and convert to base64
+if args.local_avatars:
+    cache = {}
+    for comment in data['comments']:
+	    url = comment['user']['avatar_url']
+	    if not url in cache:
+		    r = requests.get(url)
+		    if r.status_code == 200:
+			    cache[url] = "data:image/png;base64,%s" % base64.b64encode(r.content)
+	    comment['user']['avatar_url'] = cache[url]
 
 #process parameters
 if args.local:
