@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!--
+$handkerchieflicense
+
+Handkerchief contains markdown-js
+https://github.com/evilstreak/markdown-js
+
+$markdownjslicense
+-->
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script type="text/javascript">
+		$markdownjs
+		</script>
+		<script type="text/javascript">
+		$jsinfrastructure
+		</script>
+		<link rel="stylesheet" href="style.css" media="screen" charset="utf-8">
+	</head>
+	<body onload="filter_state('open')">
+		<div id="header">
+			<h1 class="repo-title">
+				<a class="username" href="https://github.com/username">username</a>/<a class="reponame" href="https://github.com/username/reponame">reponame</a>
+			</h1>
+		</div>
+		<div id="content">
+			<div id="nav">
+				<ul>
+					<li class="btn-group">
+						<a class="btn btn-group--left active state-open" id="filter_state_open" href="javascript:filter_state('open')">Open</a>
+						<a class="btn btn-group--right state-closed" id="filter_state_closed" href="javascript:filter_state('closed')">Closed</a>
+					</li>
+				</ul>
+        
+				<ul>
+			    <lh>Milestones</lh>
+          <li class="milestone active visible"><a>{milestone}</a></li>
+          <li class="milestone visible"><a>{milestone}</a></li>
+          <li class="milestone visible"><a>{milestone}</a></li>
+          <li class="milestone visible"><a href="javascript:filter_not_in_milestone()">{no-milestone}</a></li>
+        </ul>
+        
+				<ul>
+			    <lh>Labels</lh>
+          <li class="label visible"><div class="bg" style="background-color: #ffaf00;"></div><a>{label}</a></li>
+          <li class="label visible active white-label"><div class="bg" style="background-color: #0073a0;"></div><a>{label}</a></li>
+          <li class="label visible"><div class="bg" style="background-color: #6cc644;"></div><a>{label}</a></li>
+          <li class="label visible"><a href="javascript:filter_not_in_milestone()">{no-label}</a></li>
+        </ul>
+
+			</div>
+      
+      <div class="issues-list">
+				<ul>
+          <li class="issue-item visible"><a href="javascript:reload_content(1)">Login</a></li>
+          <li class="issue-item visible active"><a href="javascript:reload_content(5)">integrate mark</a></li>
+          <li class="issue-item visible"><a href="javascript:reload_content(6)">edit pages</a></li>
+        </ul>
+      </div>
+      
+      
+      
+      <div class="issue visible">
+        <h2 class="issue-title">integrate mark <span class="issue-id">#12</span></h2>
+        <div class="issue-details">
+          <div class="status open">Open</div>
+          <div class="issue-author"><strong>lukasoppermann</strong> opened this issue 17 hours ago • 0 comments</div>
+        </div>
+        
+        <div class="author">
+          <img src="https://avatars.githubusercontent.com/u/813754" alt="username" />
+        </div>
+        <div class="comment">
+          <div class="comment-details">
+            <div class="comment-author"><strong>lukasoppermann</strong> opened this issue 17 hours ago • 0 comments</div>
+          </div>
+          <div class="comment-content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+          </div>
+        </div>
+         
+         <div class="author">
+           <img src="https://avatars.githubusercontent.com/u/813754" alt="username" />
+         </div>
+         <div class="comment">
+           <div class="comment-details">
+             <div class="comment-author"><strong>lukasoppermann</strong> opened this issue 17 hours ago • 0 comments</div>
+           </div>
+           <div class="comment-content">
+             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+             Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+             Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+           </div>
+         </div>
+         
+      </div>  
+        
+		</div>
+	</body>
+</html>

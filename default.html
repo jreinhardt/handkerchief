@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<!--
+$handkerchieflicense
+
+Handkerchief contains markdown-js
+https://github.com/evilstreak/markdown-js
+
+$markdownjslicense
+-->
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<script type="text/javascript">
+		$markdownjs
+		</script>
+		<script type="text/javascript">
+		$jsinfrastructure
+		</script>
+		<link rel="stylesheet" href="style.css" media="screen" charset="utf-8">
+	</head>
+	<body onload="filter_state('open')">
+		<div id="header">
+			<h1 class="repo-title">
+				<a class="username" href="https://github.com/{username}">{username}</a>/<a class="reponame" href="https://github.com/{username}/{reponame}">{reponame}</a>
+			</h1>
+		</div>
+		<div id="content">
+			<div id="nav">
+				<ul>
+					<li class="btn-group">
+						<a class="btn btn-group--left active state-open" id="filter_state_open" href="javascript:filter_state('open')">Open</a>
+						<a class="btn btn-group--right state-closed" id="filter_state_closed" href="javascript:filter_state('closed')">Closed</a>
+					</li>
+				</ul>
+        
+				<ul>
+			    <lh>Milestones</lh>
+          <li class="milestone"><a>{milestone}</a></li>
+          <li class="milestone visible"><a href="javascript:filter_not_in_milestone()">{no-milestone}</a></li>
+        </ul>
+        
+				<ul>
+			    <lh>Labels</lh>
+          <li class="label"><div class="bg" style="background-color: #{color};"></div><a>{label}</a></li>
+          <li class="label visible"><a href="javascript:filter_not_in_milestone()">{no-label}</a></li>
+        </ul>
+
+			</div>
+      
+      <div class="issues-list">
+				<ul>
+          <li class="issue-item"><a>{issue-label}</a></li>
+        </ul>
+      </div>
+      
+      
+      
+      <div class="issue">
+        <h2 class="issue-title">{issue-label}<span class="issue-id">#{issue-id}</span></h2>
+        <div class="issue-details">
+          <div class="status {status}">{status}</div>
+          <div class="issue-author"><strong>{issue-author}</strong> opened this issue {time-ago} ago • {comment-count} comments</div>
+        </div>
+        
+        <div class="author">
+          <img src="{author-gravatar}" alt="{author}" />
+        </div>
+        <div class="comment">
+          <div class="comment-details">
+            <div class="comment-author"><strong>{author}</strong> opened this issue {time-ago} ago • {comment-count} comments</div>
+          </div>
+          <div class="comment-content">
+            {comment}
+          </div>
+        </div>
+         
+      </div>  
+        
+		</div>
+	</body>
+</html>
