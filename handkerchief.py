@@ -131,7 +131,7 @@ parser.add_argument("-o",dest="outname",default="issues.html",
 parser.add_argument("-l",dest="layout",default="default",
 	help="name of a layout to use")
 parser.add_argument("--local",dest="local",action="store_true",
-	help="use local templates instead, useful for layout development")
+	help="use local layouts instead, useful during development")
 parser.add_argument("-a",dest="auth",action="store_true",
 	help="authenticate, is sometimes necessary to avoid rate limiting")
 parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
@@ -204,7 +204,7 @@ else:
 	params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
 	params = json.loads(params)
 
-	#load template
+	#load layout
 	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.layout,auth))
 	template = env.get_template(params['html'])
 
@@ -212,7 +212,7 @@ else:
 		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
 		data['javascript'].append({'name' : n, 'content' : content})
 	for n in params['css']:
-		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.template,n),auth)
+		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
 		data['stylesheets'].append(content)
 
 #populate template
