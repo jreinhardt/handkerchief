@@ -184,7 +184,7 @@ if args.local_avatars:
 		if not avclass in avatars:
 			r = requests.get(url,auth=auth)
 			if r.status_code == 200:
-				av_style += avatar_style % (avclass,r.content.encode("base64"))
+				av_style += avatar_style % (avclass,base64.b64encode(r.content))
 				avatars.append(avclass)
 		comment['user']['avatar_class'] = avclass
 	data['stylesheets'].append(av_style)
