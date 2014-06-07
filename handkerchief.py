@@ -74,7 +74,7 @@ class GitHubLoader(BaseLoader):
 		self.auth = auth
 
 	def get_source(self, environment, template):
-		source = get_github_content(self.repo,'templates/%s/%s' % (self.layout,template),self.auth)
+		source = get_github_content(self.repo,'layouts/%s/%s' % (self.layout,template),self.auth)
 		return source,None, lambda: False
 
 #url must contain some parameters
@@ -125,12 +125,19 @@ except OSError:
 
 #parse command line arguments
 parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
-parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
-parser.add_argument("-t",dest="template",default="default",help="filename of a template to use")
-parser.add_argument("-l",dest="local",action="store_true",help="use local templates instead")
-parser.add_argument("-a",dest="auth",action="store_true",help="authenticate, is sometimes necessary to avoid rate limiting")
-parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",help="do not embed avatars, leads to smaller results")
-parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo in the form username/reponame. If not given, handkerchief tries to figure it out from git.")
+
+parser.add_argument("-o",dest="outname",default="issues.html",
+	help="filename of output HTML file")
+parser.add_argument("-l",dest="layout",default="default",
+	help="name of a layout to use")
+parser.add_argument("--local",dest="local",action="store_true",
+	help="use local templates instead, useful for layout development")
+parser.add_argument("-a",dest="auth",action="store_true",
+	help="authenticate, is sometimes necessary to avoid rate limiting")
+parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
+	help="do not embed avatars, leads to smaller results")
+parser.add_argument("reponame",default=reponame,nargs="?",
+	help="GitHub repo in the form username/reponame. If not given, handkerchief guesses")
 
 args = parser.parse_args()
 
@@ -177,35 +184,35 @@ if args.local_avatars:
 		if not avclass in avatars:
 			r = requests.get(url,auth=auth)
 			if r.status_code == 200:
-				av_style += avatar_style % (avclass,base64.b64encode(r.content))
+				av_style += avatar_style % (avclass,r.content.encode("base64"))
 				avatars.append(avclass)
 		comment['user']['avatar_class'] = avclass
 	data['stylesheets'].append(av_style)
 
 #process parameters
 if args.local:
-	troot = join("templates",args.template)
-	params = json.load(open(join(troot,"%s.json" % args.template)))
+	lroot = join("layouts",args.layout)
+	params = json.load(open(join(lroot,"%s.json" % args.layout),"utf8"))
 
-	#load template
-	env = Environment(loader=FileSystemLoader(troot))
+	#load layout
+	env = Environment(loader=FileSystemLoader(lroot))
 	template = env.get_template(params['html'])
 
-	data['javascript'] = [{'name' : n, 'content' : open(join(troot,n)).read()} for n in params['js']]
-	data['stylesheets'] = [open(join(troot,n)).read() for n in params['css']]
+	data['javascript'] = [{'name' : n, 'content' : open(join(lroot,n),"utf8").read()} for n in params['js']]
+	data['stylesheets'] = [open(join(lroot,n),"utf8").read() for n in params['css']]
 else:
-	params = get_github_content('jreinhardt/handkerchief','templates/%s/%s.json' % (args.template,args.template),auth)
+	params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
 	params = json.loads(params)
 
 	#load template
-	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.template,auth))
+	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.layout,auth))
 	template = env.get_template(params['html'])
 
 	for n in params['js']:
-		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n),auth)
+		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
 		data['javascript'].append({'name' : n, 'content' : content})
 	for n in params['css']:
-		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n),auth)
+		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.template,n),auth)
 		data['stylesheets'].append(content)
 
 #populate template
