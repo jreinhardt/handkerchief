@@ -53,6 +53,8 @@ milestone_last_re = '<https://api.github.com/repositories/([0-9]*)/milestones\?p
 repo_url = 'https://api.github.com/repos/%s?'
 file_url = 'https://api.github.com/repos/%s/contents/%s'
 
+avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); background-size: 100% 100%;}\n"
+
 def get_github_content(repo,path):
 	request = requests.get(file_url % (repo,path))
 	if not request.ok:
@@ -124,7 +126,7 @@ parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTM
 parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
 parser.add_argument("-t",dest="template",default="default",help="filename of a template to use")
 parser.add_argument("-l",dest="local",action="store_true",help="use local templates instead")
-parser.add_argument("-a",dest="local_avatars",action="store_true",help="embed avatars, leads to large results")
+parser.add_argument("-a",dest="local_avatars",action="store_false",help="do not embed avatars, leads to smaller results")
 parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo in the form username/reponame. If not given, handkerchief tries to figure it out from git.")
 
 args = parser.parse_args()
@@ -152,16 +154,23 @@ except requests.exceptions.ConnectionError:
 	print "Could not connect to GitHub. Please check your internet connection"
 	exit(1)
 
+data['javascript'] = []
+data['stylesheets'] = []
+
 #fetch avatars and convert to base64
 if args.local_avatars:
-    cache = {}
-    for comment in data['comments']:
-	    url = comment['user']['avatar_url']
-	    if not url in cache:
-		    r = requests.get(url)
-		    if r.status_code == 200:
-			    cache[url] = "data:image/png;base64,%s" % base64.b64encode(r.content)
-	    comment['user']['avatar_url'] = cache[url]
+	av_style = ""
+	avatars = []
+	for comment in data['comments']:
+		url = comment['user']['avatar_url']
+		avclass = 'avatar_' + comment['user']['login']
+		if not avclass in avatars:
+			r = requests.get(url)
+			if r.status_code == 200:
+				av_style += avatar_style % (avclass,base64.b64encode(r.content))
+				avatars.append(avclass)
+		comment['user']['avatar_class'] = avclass
+	data['stylesheets'].append(av_style)
 
 #process parameters
 if args.local:
@@ -182,8 +191,6 @@ else:
 	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.template))
 	template = env.get_template(params['html'])
 
-	data['javascript'] = []
-	data['stylesheets'] = []
 	for n in params['js']:
 		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n))
 		data['javascript'].append({'name' : n, 'content' : content})

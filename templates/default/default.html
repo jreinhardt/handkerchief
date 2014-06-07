@@ -66,8 +66,7 @@
 		</div>
 
 		{% for comment in comments %}
-		<div class="author">
-			<img src="{{ comment['user']['avatar_url'] }}" alt="{{ comment['user']['login'] }}" />
+		<div class="author {{ comment['user']['avatar_class'] }}">
 		</div>
 		<div class="comment">
 			<div class="comment-details">
