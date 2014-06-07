@@ -53,7 +53,7 @@ milestone_last_re = '<https://api.github.com/repositories/([0-9]*)/milestones\?p
 repo_url = 'https://api.github.com/repos/%s?'
 file_url = 'https://api.github.com/repos/%s/contents/%s'
 
-avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); background-size: 100% 100%;}\n"
+avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); background-size: 100%% 100%%;}\n"
 
 def get_github_content(repo,path):
 	request = requests.get(file_url % (repo,path))
