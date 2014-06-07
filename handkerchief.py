@@ -65,13 +65,13 @@ def get_github_content(repo,path):
 	return request.json()['content'].decode('base64').decode('utf8')
 
 class GitHubLoader(BaseLoader):
-    def __init__(self, repo, layout):
-	self.repo = repo
-        self.layout = layout
+	def __init__(self, repo, layout):
+		self.repo = repo
+		self.layout = layout
 
-    def get_source(self, environment, template):
-	source = get_github_content(self.repo,'templates/%s/%s' % (self.layout,template))
-	return source,None, lambda: False
+	def get_source(self, environment, template):
+		source = get_github_content(self.repo,'templates/%s/%s' % (self.layout,template))
+		return source,None, lambda: False
 
 #url must contain some parameters
 def get_all_pages(url,re_last_page):
@@ -135,7 +135,6 @@ try:
 	data['issues']= []
 	for state in ["open","closed"]:
 		data['issues']+= get_all_pages(issue_url % (args.reponame,state),issue_last_re % state)
-
 
 	repo_request = requests.get(repo_url % args.reponame)
 	if not repo_request.ok:
