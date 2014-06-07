@@ -30,6 +30,7 @@ import json
 import subprocess
 import re
 import base64
+import getpass
 from sys import exit
 from string import Template
 from codecs import open
@@ -55,8 +56,8 @@ file_url = 'https://api.github.com/repos/%s/contents/%s'
 
 avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); background-size: 100%% 100%%;}\n"
 
-def get_github_content(repo,path):
-	request = requests.get(file_url % (repo,path))
+def get_github_content(repo,path,auth=None):
+	request = requests.get(file_url % (repo,path),auth=auth)
 	if not request.ok:
 		print "There is a problem with the request"
 		print file_url % (repo,path)
@@ -67,21 +68,22 @@ def get_github_content(repo,path):
 	return request.json()['content'].decode('base64').decode('utf8')
 
 class GitHubLoader(BaseLoader):
-	def __init__(self, repo, layout):
+	def __init__(self, repo, layout,auth=None):
 		self.repo = repo
 		self.layout = layout
+		self.auth = auth
 
 	def get_source(self, environment, template):
-		source = get_github_content(self.repo,'templates/%s/%s' % (self.layout,template))
+		source = get_github_content(self.repo,'templates/%s/%s' % (self.layout,template),self.auth)
 		return source,None, lambda: False
 
 #url must contain some parameters
-def get_all_pages(url,re_last_page):
+def get_all_pages(url,re_last_page,auth=None):
 	url_temp = url + "&page=%d"
 
 	data = []
 	i = 1
-	request = requests.get(url_temp % i)
+	request = requests.get(url_temp % i,auth=auth)
 	if not request.ok:
 		print "There is a problem with the request"
 		print url_temp % i
@@ -99,7 +101,7 @@ def get_all_pages(url,re_last_page):
 		last_page = int(result.group(2))
 		
 		for i in range(2,last_page+1):
-			request = requests.get(url_temp % i)
+			request = requests.get(url_temp % i,auth=auth)
 			data += request.json()
 		return data
 
@@ -126,19 +128,27 @@ parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTM
 parser.add_argument("-o",dest="outname",default="issues.html",help="filename of output HTML file")
 parser.add_argument("-t",dest="template",default="default",help="filename of a template to use")
 parser.add_argument("-l",dest="local",action="store_true",help="use local templates instead")
-parser.add_argument("-a",dest="local_avatars",action="store_false",help="do not embed avatars, leads to smaller results")
+parser.add_argument("-a",dest="auth",action="store_true",help="authenticate, is sometimes necessary to avoid rate limiting")
+parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",help="do not embed avatars, leads to smaller results")
 parser.add_argument("reponame",default=reponame,nargs="?",help="Name of the repo in the form username/reponame. If not given, handkerchief tries to figure it out from git.")
 
 args = parser.parse_args()
+
+if args.auth:
+	username = raw_input("Username: ")
+	password = getpass.getpass()
+	auth = (username,password)
+else:
+	auth = None
 
 #request data from api
 data = {}
 try:
 	data['issues']= []
 	for state in ["open","closed"]:
-		data['issues']+= get_all_pages(issue_url % (args.reponame,state),issue_last_re % state)
+		data['issues']+= get_all_pages(issue_url % (args.reponame,state),issue_last_re % state,auth)
 
-	repo_request = requests.get(repo_url % args.reponame)
+	repo_request = requests.get(repo_url % args.reponame,auth=auth)
 	if not repo_request.ok:
 		print "There is a problem with the request"
 		print repo_url % args.reponame
@@ -146,9 +156,9 @@ try:
 		exit(1)
 	data['repo'] = repo_request.json()
 	
-	data['comments'] = get_all_pages(comment_url % args.reponame, comment_last_re)
-	data['labels'] = get_all_pages(label_url % args.reponame, label_last_re)
-	data['milestones'] = get_all_pages(milestone_url % args.reponame, milestone_last_re)
+	data['comments'] = get_all_pages(comment_url % args.reponame, comment_last_re,auth)
+	data['labels'] = get_all_pages(label_url % args.reponame, label_last_re,auth)
+	data['milestones'] = get_all_pages(milestone_url % args.reponame, milestone_last_re,auth)
 
 except requests.exceptions.ConnectionError:
 	print "Could not connect to GitHub. Please check your internet connection"
@@ -165,7 +175,7 @@ if args.local_avatars:
 		url = comment['user']['avatar_url']
 		avclass = 'avatar_' + comment['user']['login']
 		if not avclass in avatars:
-			r = requests.get(url)
+			r = requests.get(url,auth=auth)
 			if r.status_code == 200:
 				av_style += avatar_style % (avclass,base64.b64encode(r.content))
 				avatars.append(avclass)
@@ -184,18 +194,18 @@ if args.local:
 	data['javascript'] = [{'name' : n, 'content' : open(join(troot,n)).read()} for n in params['js']]
 	data['stylesheets'] = [open(join(troot,n)).read() for n in params['css']]
 else:
-	params = get_github_content('jreinhardt/handkerchief','templates/%s/%s.json' % (args.template,args.template))
+	params = get_github_content('jreinhardt/handkerchief','templates/%s/%s.json' % (args.template,args.template),auth)
 	params = json.loads(params)
 
 	#load template
-	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.template))
+	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.template,auth))
 	template = env.get_template(params['html'])
 
 	for n in params['js']:
-		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n))
+		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n),auth)
 		data['javascript'].append({'name' : n, 'content' : content})
 	for n in params['css']:
-		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n))
+		content = get_github_content('jreinhardt/handkerchief','templates/%s/%s' %(args.template,n),auth)
 		data['stylesheets'].append(content)
 
 #populate template
