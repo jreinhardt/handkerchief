@@ -204,6 +204,10 @@ for comment in comments:
 		else:
 			print "Issue %s not found" % match.group(1)
 
+#add labelnames to issues
+for issue in data['issues']:
+	issue['labelnames'] = [l['name'] for l in issue['labels']]
+
 #process parameters
 if args.local:
 	lroot = join("layouts",args.layout)

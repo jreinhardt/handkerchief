@@ -95,7 +95,8 @@ following variables are available:
   [GitHub API docs](https://developer.github.com/v3/repos/)
 * issues: a list of dictionaries containing issue data, see 
   [GitHub API docs](https://developer.github.com/v3/issues/). Each issue has an
-  additional field 'comments_list' with a list of all comments (see 
+  additional fields 'labelnames' with a list of all labels and  'comments_list'
+  with a list of all comments (see 
   [GitHub API docs](https://developer.github.com/v3/issues/comments)) for this
   issue. The comment data is augmented by a string in
   `comment['user']['avatar_class']` which contains a css class that sets the
