@@ -44,6 +44,7 @@ issue_last_re = '<https://api.github.com/repositories/([0-9]*)/issues\?state=%s&
 
 comment_url = 'https://api.github.com/repos/%s/issues/comments?'
 comment_last_re = '<https://api.github.com/repositories/([0-9]*)/issues/comments\?page=([0-9]*)>; rel="last"'
+comment_issue_re = 'https://github.com/%s/issues/([0-9]*)#issuecomment-[0-9]*'
 
 label_url = 'https://api.github.com/repos/%s/labels?'
 label_last_re = '<https://api.github.com/repositories/([0-9]*)/labels\?page=([0-9]*)>; rel="last"'
@@ -163,7 +164,7 @@ try:
 		exit(1)
 	data['repo'] = repo_request.json()
 	
-	data['comments'] = get_all_pages(comment_url % args.reponame, comment_last_re,auth)
+	comments = get_all_pages(comment_url % args.reponame, comment_last_re,auth)
 	data['labels'] = get_all_pages(label_url % args.reponame, label_last_re,auth)
 	data['milestones'] = get_all_pages(milestone_url % args.reponame, milestone_last_re,auth)
 
@@ -178,7 +179,7 @@ data['stylesheets'] = []
 if args.local_avatars:
 	av_style = ""
 	avatars = []
-	for comment in data['comments']:
+	for comment in comments:
 		url = comment['user']['avatar_url']
 		avclass = 'avatar_' + comment['user']['login']
 		if not avclass in avatars:
@@ -189,17 +190,31 @@ if args.local_avatars:
 		comment['user']['avatar_class'] = avclass
 	data['stylesheets'].append(av_style)
 
+#determine issue ids for comments
+for issue in data['issues']:
+	issue['comments_list'] = []
+for comment in comments:
+	match = re.match(comment_issue_re % args.reponame,comment['html_url'])
+
+	if not match is None:
+		for issue in data['issues']:
+			if int(issue['number']) == int(match.group(1)):
+				issue['comments_list'].append(comment)
+				break
+		else:
+			print "Issue %s not found" % match.group(1)
+
 #process parameters
 if args.local:
 	lroot = join("layouts",args.layout)
-	params = json.load(open(join(lroot,"%s.json" % args.layout),"utf8"))
+	params = json.load(open(join(lroot,"%s.json" % args.layout),"r","utf8"))
 
 	#load layout
 	env = Environment(loader=FileSystemLoader(lroot))
 	template = env.get_template(params['html'])
 
-	data['javascript'] = [{'name' : n, 'content' : open(join(lroot,n),"utf8").read()} for n in params['js']]
-	data['stylesheets'] = [open(join(lroot,n),"utf8").read() for n in params['css']]
+	data['javascript'] = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
+	data['stylesheets'] = [open(join(lroot,n),"r","utf8").read() for n in params['css']]
 else:
 	params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
 	params = json.loads(params)

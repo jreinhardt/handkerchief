@@ -93,12 +93,13 @@ following variables are available:
 
 * repo: a dictionary containing information about the repository, see
   [GitHub API docs](https://developer.github.com/v3/repos/)
-* issues: a list of dictionaries containing issue data, see
-  [GitHub API docs](https://developer.github.com/v3/issues/)
-* comments: a list of dictionaries containing comment data, see [GitHub API
-  docs](https://developer.github.com/v3/issues/comments). The comment data is
-  augmented by a string in `comment['user']['avatar_class']` which contains a css
-  class that sets the avatar of the user as background image of the element.
+* issues: a list of dictionaries containing issue data, see 
+  [GitHub API docs](https://developer.github.com/v3/issues/). Each issue has an
+  additional field 'comments_list' with a list of all comments (see 
+  [GitHub API docs](https://developer.github.com/v3/issues/comments)) for this
+  issue. The comment data is augmented by a string in
+  `comment['user']['avatar_class']` which contains a css class that sets the
+  avatar of the user as background image of the element.
 * labels: a list of dictionaries containing label data, see
   [GitHub API docs](https://developer.github.com/v3/issues/labels)
 * milestones: a list of dictionaries containing milestone data, see
