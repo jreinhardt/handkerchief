@@ -214,7 +214,7 @@ if args.local:
 	template = env.get_template(params['html'])
 
 	data['javascript'] = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
-	data['stylesheets'] = [open(join(lroot,n),"r","utf8").read() for n in params['css']]
+	data['stylesheets'] += [open(join(lroot,n),"r","utf8").read() for n in params['css']]
 else:
 	params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
 	params = json.loads(params)
