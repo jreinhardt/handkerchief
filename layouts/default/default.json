@@ -1,5 +1,5 @@
 {
 "html" : "default.html",
 "css" : ["style.css"],
-"js" : ["markdown.js", "default.js"]
+"js" : ["jquery-2.1.1.min.js", "markdown.min.js", "default.js"]
 }

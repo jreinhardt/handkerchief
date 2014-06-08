@@ -14,67 +14,82 @@
 		</style>
 		{% endfor %}
 	</head>
-	<body onload="filter_state('open')">
+	<body>
 		<div id="header">
 			<h1 class="repo-title">
-				<a class= "username" href="{{ repo['owner']['html_url'] }}"">{{ repo['owner']['login'] }}</a>/<a class="reponame" href="{{ repo['html_url'] }}">{{ repo['name'] }}</a>
+				<a class= "username" href="{{ repo['owner']['html_url'] }}">{{ repo['owner']['login'] }}</a>/<a class="reponame" href="{{ repo['html_url'] }}">{{ repo['name'] }}</a>
 			</h1>
 		</div>
 		<div id="content">
 			<div id="nav">
 				<ul>
 					<li class="btn-group">
-						<a class="btn btn-group--left active state-open" id="filter_state_open" href="javascript:filter_state('open')">Open</a>
-						<a class="btn btn-group--right state-closed" id="filter_state_closed" href="javascript:filter_state('closed')">Closed</a>
+						<a class="btn btn-group--left active state-open" id="filter_state_open" href="javascript:activateStateButton('filter_state_open')">Open</a>
+						<a class="btn btn-group--right state-closed" id="filter_state_closed" href="javascript:activateStateButton('filter_state_closed')">Closed</a>
 					</li>
 				</ul>
 
 				<ul>
 					 <lh>Milestones</lh>
 					{% for ms in milestones %}
-					<li class="milestone visible {{ ms['status'] }}"><a href="javascript:filter_not_in_milestone()">{{ ms['title'] }}</a></li>
+					<li class="milestone visible {{ ms['status'] }}"
+						data-milestone="{{ ms['number'] }}">
+							<a href="javascript:selectMilestone({{ ms['number'] }})">{{ ms['title'] }}</a>
+					</li>
 					{% endfor %}
-					<li class="milestone visible"><a href="javascript:filter_not_in_milestone()">Not in any milestone</a></li>
+					<li class="milestone visible "
+						data-milestone="None">
+							<a href="javascript:selectMilestone('None')">Not in any milestone</a>
+					</li>
 				</ul>
 
 				<ul>
 					<lh>Labels</lh>
 					{% for label in labels %}
-					<li class="label visible"><div class="bg" style="background-color: {{ label['color'] }};"></div><a href="javascript:filter_not_in_milestone()">{{ label['name'] }}</a></li>
+					<li class="label visible" data-label="{{ label['name'] }}"><div class="bg" style="background-color: #{{ label['color'] }};"></div><a href="javascript:toggleLabel('{{ label['name'] }}')">{{ label['name'] }}</a></li>
 					{% endfor %}
-					<li class="label visible"><a href="javascript:filter_not_in_milestone()">No label</a></li>
+					<li class="label visible"><a href="javascript:toggleLabel('None')">No label</a></li>
 				</ul>
 			</div>
 		
 		<div class="issues-list">
 			{% for issue in issues %}
-			<li class="issue-item visible"><a href="javascript:filter_not_in_milestone()">{{ issue['title'] }}</a></li>
+			<li class="issue-item visible"
+				data-state="{{ issue['state'] }}"
+				data-issue="{{ issue['number'] }}"
+				data-milestone="{{ issue['milestone']['number'] }}"
+				data-labels="{{ " ".join(issue['labelnames']) }}">
+					<a href="javascript:activateIssue({{ issue['number'] }})">{{ issue['title'] }}</a>
+			</li>
 			{% endfor %}
 		  </ul>
 		</div>
 		
 		
 		
-		<div class="issue visible">
-			{% for issue in issues %}
+		{% for issue in issues %}
+		<div class="issue visible" data-issue="{{ issue['number'] }}" >
 			<h2 class="issue-title"> {{ issue['title'] }}  <span class="issue-id">#{{ issue['number'] }}</span></h2>
 			<div class="issue-details">
 				<div class="status {{ issue['status'] }}">{{ issue['status'] }}</div>
 				<div class="issue-author"><strong>{{ issue['user']['login'] }}</strong> opened this issue on {{ issue['created_at'] }} • {{ issue['comments'] }}</div>
 			</div>
-			{% endfor %}
-		</div>
+			<div class="comment">
+				<div class="comment-details">
+				</div>
+				<div class="comment-content">{{ issue['body'] }}</div>
+			</div>
 
-		{% for comment in comments %}
-		<div class="author {{ comment['user']['avatar_class'] }}">
-		</div>
-		<div class="comment">
-			<div class="comment-details">
-				<div class="comment-author"><strong>{{ comment['user']['login'] }}</strong> commented on this issue on {{ comment['created_at'] }}</div>
+			{% for comment in issue['comments_list'] %}
+			<div class="author {{ comment['user']['avatar_class'] }}">
 			</div>
-			<div class="comment-content">
-				{{ comment['body'] }}
+			<div class="comment">
+				<div class="comment-details">
+					<div class="comment-author"><strong>{{ comment['user']['login'] }}</strong> commented on this issue on {{ comment['created_at'] }}</div>
+				</div>
+				<div class="comment-content">{{ comment['body'] }}</div>
 			</div>
+			{% endfor %}
 		</div>
 		{% endfor %}
 	</body>

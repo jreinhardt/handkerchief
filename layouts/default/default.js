@@ -1,103 +1,123 @@
-issue_data = $issue_data;
-comment_data = $comment_data;
-function reload_content(id){
-	var comment_node = document.getElementById("comments");
-	while (comment_node.hasChildNodes()) {
-		comment_node.removeChild(comment_node.lastChild);
-	}
-	for(var i = 0; i < issue_data.length; i++){
-		if(issue_data[i]["number"] == id){
-			document.getElementById("title").firstChild.nodeValue = issue_data[i]["title"];
+$(document).ready(function(){
+	//render markdown
+	$("*.comment-content").each(function(i,sel){
+		$(sel).html(markdown.toHTML($(sel).text()));
+	});
 
-			var comment = document.createElement("div");
-			comment.setAttribute("class","comment");
-			comment.innerHTML = markdown.toHTML(issue_data[i]["body"]);
-			comment_node.appendChild(comment);
-			for(var j = 0; j < comment_data.length; j++){
-				if(comment_data[j]["issue_url"] == issue_data[i]["url"]){
-					var comment = document.createElement("div");
-					comment.setAttribute("class","comment");
-					comment.innerHTML = markdown.toHTML(comment_data[j]["body"]);
-					comment_node.appendChild(comment);
-				}
-			}
-			break;
-		}
-	}
-}
-function clear_issues(){
-	//clear menu
-	filtered_items = document.getElementById("filtered");
-	while (filtered_items.hasChildNodes()) {
-		filtered_items.removeChild(filtered_items.lastChild);
-	}
-	//clear active class
-	document.getElementById("filter_state_open").setAttribute("class","")
-	document.getElementById("filter_state_closed").setAttribute("class","")
-	document.getElementById("filter_no_milestone").setAttribute("class","")
-	for(var i = 0; i < issue_data.length; i++){
-		document.getElementById("filter_state_" + issue_data[i]['state']).setAttribute("class","")
-		if(issue_data[i]['milestone'] != null){
-			document.getElementById("filter_milestone_" + issue_data[i]['milestone']['title']).setAttribute("class","")
-		}
-	}
-}
-function add_issue(issue){
-	filtered_items = document.getElementById("filtered");
-	var issue_title = document.createTextNode(issue["title"])
-	var issue_link = document.createElement("a");
-	issue_link.setAttribute("href",'javascript:reload_content(' + issue["number"].toString() + ')')
-	issue_link.appendChild(issue_title);
+	//show all open issues
+	activateStateButton("filter_state_open");
 
-	var issue_item = document.createElement("li")
-	issue_item.appendChild(issue_link)
+	//show first issue
+	$('*.issue-item').removeClass('active');
+	$('*.issue-item').first().addClass('active');
+	reloadContent();
+});
 
-	filtered_items.appendChild(issue_item);
-}
-function filter_state(state){
-	clear_issues();
-	document.getElementById("filter_state_" + state).setAttribute("class","active")
-	for(var i = 0; i < issue_data.length; i++){
-		if(issue_data[i]['state'] != state){
-			add_issue(issue_data[i]);
+function reloadContent(){
+	var state;
+	if ($("#filter_state_open").hasClass("active")){
+		state = "open";
+	} else {
+		state = "closed";
+	}
+
+	var milestones = [];
+	$('.milestone.active').each(function(i,sel){
+		milestones[i] = $(sel).data('milestone');
+	});
+
+	var labels = [];
+	$('.label.active').each(function(i,sel){
+		labels[i] = $(sel).data('label');
+	});
+
+	//filter items
+	var items = $('.issue-item');
+	items.removeClass('visible');
+
+	//filter for state
+	items = $(items).filter('[data-state='+state+ ']')
+	
+
+	//filter for milestones
+	if(milestones.length == 0){
+		// no milestone filter selected
+	} else if(milestones[0] == "None"){
+		//not in any milestone filter selected
+		items = $(items).filter("[data-milestone='']")
+	} else {
+		//milestone filter selected
+		items = $(items).filter("[data-milestone='" + milestones[0] + "']")
+	}
+
+	//filter for labels
+	if(labels.length == 0){
+		// no label filter selected
+	} else if(milestones == ["None"]){
+		//no label filter selected
+		items = $(items).filter("[data-label='']")
+	} else {
+		//milestone filter selected
+		for(var l=0; l < labels.length; l++){
+			items = $(items).filter("[data-labels*='" + labels[l] + "']")
 		}
 	}
+
+	items.addClass('visible')
+
+
+	if(!$(".issue-item.active").hasClass('visible')){
+		//show first issue
+		$('*.issue-item.active').removeClass('active');
+		$('*.issue-item.visible').first().addClass('active');
+	}
+	$(".issue ").removeClass('visible');
+	$(".issue[data-issue=" + $('.issue-item.active').data('issue') + "]").addClass('visible');
 }
-function filter_label(label){
-	clear_issues();
-	document.getElementById("filter_label_" + label).setAttribute("class","active")
-	for(var i = 0; i < issue_data.length; i++){
-		for(var j = 0; j < issue_data[i]['labels'].length; j++){
-			if(issue_data[i]['labels'][j]['name'] == label){
-				add_issue(issue_data[i]);
-			}
+
+function activateStateButton(id){
+	if(id == "filter_state_open"){
+		opp_id = "filter_state_closed";
+	} else {
+		opp_id = "filter_state_open";
+	}
+	if(!$("#" + id).hasClass("active")){
+		$("#" + id).addClass("active");
+		$("#" + opp_id).removeClass("active");
+	} else {
+		$("#" + opp_id).removeClass("active");
+	}
+	reloadContent();
+}
+
+function activateIssue(id){
+	$('.issue-item').removeClass('active');
+	$('.issue-item[data-issue=' + id +']').addClass('active');
+	reloadContent()
+}
+
+function selectMilestone(id){
+	if($('.milestone.active').data('milestone') == id){
+		$('.milestone').removeClass('active');
+	} else {
+		$('.milestone').removeClass('active');
+		$('.milestone[data-milestone=' + id + "]").addClass('active');
+	}
+	reloadContent()
+}
+
+function toggleLabel(id){
+	l = $('.label[data-label=' + id + "]");
+	if(id == 'None'){
+		$('.label').removeClass('active')
+		l.addClass('active')
+	} else {
+		if(l.hasClass('active')){
+			l.removeClass('active');
+		} else {
+			l.addClass('active');
 		}
 	}
-}
-function filter_milestone(title){
-	clear_issues();
-	document.getElementById("filter_milestone_" + title).setAttribute("class","active")
-	for(var i = 0; i < issue_data.length; i++){
-		if(issue_data[i]['milestone'] != null){
-			if(issue_data[i]['milestone']['title'] == title){
-				add_issue(issue_data[i]);
-			}
-		}
-	}
-}
-function filter_not_in_milestone(){
-	clear_issues();
-	document.getElementById("filter_no_milestone").setAttribute("class","active")
-	for(var i = 0; i < issue_data.length; i++){
-		if(issue_data[i]['milestone'] == null){
-			add_issue(issue_data[i]);
-		}
-	}
-}
-function filter_all(){
-	clear_issues();
-	for(var i = 0; i < issue_data.length; i++){
-		add_issue(issue_data[i]);
-	}
+	reloadContent()
 }
 
