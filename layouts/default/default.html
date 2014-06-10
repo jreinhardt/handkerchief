@@ -71,11 +71,15 @@
 		<div class="issue visible" data-issue="{{ issue['number'] }}" >
 			<h2 class="issue-title"> {{ issue['title'] }}  <span class="issue-id">#{{ issue['number'] }}</span></h2>
 			<div class="issue-details">
-				<div class="status {{ issue['status'] }}">{{ issue['status'] }}</div>
-				<div class="issue-author"><strong>{{ issue['user']['login'] }}</strong> opened this issue on {{ issue['created_at'] }} • {{ issue['comments'] }}</div>
+				<div class="status {{ issue['state'] }}">{{ issue['state'] }}</div>
+				<div class="issue-author"><strong>{{ issue['user']['login'] }}</strong> opened this issue {{ issue['created_at'] }} • <span class="commentCount" data-count="{{ issue['comments'] }}"></span></div>
+			</div>
+      
+      <div class="author {{ issue['user']['avatar_class'] }}">
 			</div>
 			<div class="comment">
 				<div class="comment-details">
+          <strong>{{ issue['user']['login'] }}</strong> commented on this issue {{ issue['created_at'] }}
 				</div>
 				<div class="comment-content">{{ issue['body'] }}</div>
 			</div>

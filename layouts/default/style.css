@@ -9,6 +9,11 @@ html, body{
 a{
   color: rgb(65, 130, 195);
 }
+hr{
+  height: 1px;
+  border: 0;
+  background: rgb(225,235,240);
+}
 /* ------------------ */
 /* Header */
 #header{
@@ -317,11 +322,11 @@ a{
 }
 .issue-title{
   font-weight: normal;
-  font-size: 2em;
-  margin: 0 0 15px;
+  font-size: 1.8em;
+	line-height: 130%;
+  margin: 0 10px 15px 0;
 }
 .issue-title .issue-id{
-  padding-left: 10px;
   color: rgb(200,200,200);
 }
 .issue-details{

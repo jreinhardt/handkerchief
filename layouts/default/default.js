@@ -73,6 +73,10 @@ function reloadContent(){
 	}
 	$(".issue ").removeClass('visible');
 	$(".issue[data-issue=" + $('.issue-item.active').data('issue') + "]").addClass('visible');
+	
+	$(".commentCount").each(function(){
+		$(this).text(commentCount($(this).data('count')));
+	});
 }
 
 function activateStateButton(id){
@@ -121,3 +125,42 @@ function toggleLabel(id){
 	reloadContent()
 }
 
+function parseTime(time){
+	return new Date((time || "").replace(/-/g,"/").replace(/[TZ]/g," "));
+}
+
+function timeAgo(date) {
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+
+    var interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+        return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+        return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+        return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+        return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+        return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+}
+
+function commentCount(comments){
+	if(comments === 1)
+	{
+		return "1 comment";
+	}
+	return comments+" comments";
+}
