@@ -14,6 +14,12 @@ hr{
   border: 0;
   background: rgb(225,235,240);
 }
+code{
+  padding: 5px;
+  border-radius: 3px;
+  background-color:rgb(245,245,245);
+  border: 1px solid rgb(225,225,225);
+}
 /* ------------------ */
 /* Header */
 #header{
@@ -438,4 +444,7 @@ hr{
 }
 .comment-content p:last-child{
   margin-bottom: 0;
+}
+.comment-content img{
+  max-width: 100%;
 }

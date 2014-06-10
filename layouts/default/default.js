@@ -11,6 +11,11 @@ $(document).ready(function(){
 			$(this).data('textcolor', getContrastYIQ($(this).data("color")));
 		}
 	});
+	
+	// parse time
+	$('.timeago').each(function(){
+		$(this).text(timeAgo(parseTime($(this).data('time')))+' ago');
+	});
 
 	//show all open issues
 	activateStateButton("filter_state_open");
