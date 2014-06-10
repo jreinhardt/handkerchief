@@ -52,6 +52,9 @@ label_last_re = '<https://api.github.com/repositories/([0-9]*)/labels\?page=([0-
 milestone_url = 'https://api.github.com/repos/%s/milestones?'
 milestone_last_re = '<https://api.github.com/repositories/([0-9]*)/milestones\?page=([0-9]*)>; rel="last"'
 
+assignee_url = 'https://api.github.com/repos/%s/assignees?'
+assignee_last_re = '<https://api.github.com/repositories/([0-9]*)/assignees\?page=([0-9]*)>; rel="last"'
+
 repo_url = 'https://api.github.com/repos/%s?'
 file_url = 'https://api.github.com/repos/%s/contents/%s'
 
@@ -171,6 +174,7 @@ try:
 	comments = get_all_pages(comment_url % args.reponame, comment_last_re,auth)
 	data['labels'] = get_all_pages(label_url % args.reponame, label_last_re,auth)
 	data['milestones'] = get_all_pages(milestone_url % args.reponame, milestone_last_re,auth)
+	data['assignees'] = get_all_pages(assignee_url % args.reponame, assignee_last_re,auth)
 
 except requests.exceptions.ConnectionError:
 	print "Could not connect to GitHub. Please check your internet connection"

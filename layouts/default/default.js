@@ -36,13 +36,19 @@ function reloadContent(){
 
 	var milestones = [];
 	$('.milestone.active').each(function(i,sel){
-		milestones[i] = $(sel).data('milestone');
+		milestones.push($(sel).data('milestone'));
 	});
 
 	var labels = [];
 	$('.label.active').each(function(i,sel){
-		labels[i] = $(sel).data('label');
+		labels.push($(sel).data('label'));
 	});
+
+	var assignees = [];
+	$('.assignee.active').each(function(i,sel){
+		assignees.push($(sel).data('login'));
+	});
+	console.log(assignees)
 
 	//filter items
 	var items = $('.issue-item');
@@ -66,13 +72,26 @@ function reloadContent(){
 	//filter for labels
 	if(labels.length == 0){
 		// no label filter selected
-	} else if(milestones == ["None"]){
+	} else if(labels == ["None"]){
 		//no label filter selected
 		items = $(items).filter("[data-label='']")
 	} else {
-		//milestone filter selected
+		//label filter selected
 		for(var l=0; l < labels.length; l++){
 			items = $(items).filter("[data-labels*='" + labels[l] + "']")
+		}
+	}
+
+	//filter for assignees
+	if(assignees.length == 0){
+		// no label filter selected
+	} else if(assignees == ["None"]){
+		//no label filter selected
+		items = $(items).filter("[data-assignee='']")
+	} else {
+		//label filter selected
+		for(var l=0; l < assignees.length; l++){
+			items = $(items).filter("[data-assignee*='" + assignees[l] + "']")
 		}
 	}
 
@@ -119,6 +138,16 @@ function selectMilestone(id){
 	} else {
 		$('.milestone').removeClass('active');
 		$('.milestone[data-milestone=' + id + "]").addClass('active');
+	}
+	reloadContent()
+}
+
+function selectAssignee(login){
+	if($('.assignee.active').data('login') == login){
+		$('.assignee').removeClass('active');
+	} else {
+		$('.assignee').removeClass('active');
+		$('.assignee[data-login=' + login + "]").addClass('active');
 	}
 	reloadContent()
 }

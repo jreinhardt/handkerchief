@@ -50,6 +50,15 @@
 					{% endfor %}
 					<li class="label visible"><a href="javascript:toggleLabel('None')">No label</a></li>
 				</ul>
+
+				<ul>
+					<lh>Assigned to</lh>
+					{% for assignee in assignees %}
+					<li class="assignee visible" data-login="{{ assignee['login'] }}">
+						<a href="javascript:selectAssignee('{{ assignee['login'] }}')">{{ assignee['login'] }}</a></li>
+					{% endfor %}
+					<li class="assignee visible" data-login=""><a href="javascript:selectAssignee('None')">Not assigned to anybody</a></li>
+				</ul>
 			</div>
 		
 		<div class="issues-list">
@@ -58,7 +67,8 @@
 				data-state="{{ issue['state'] }}"
 				data-issue="{{ issue['number'] }}"
 				data-milestone="{{ issue['milestone']['number'] }}"
-				data-labels="{{ " ".join(issue['labelnames']) }}">
+				data-labels="{{ " ".join(issue['labelnames']) }}"
+				data-assignee="{{ issue['assignee']['login'] }}">
 					<a href="javascript:activateIssue({{ issue['number'] }})">{{ issue['title'] }}</a>
 			</li>
 			{% endfor %}
