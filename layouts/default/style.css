@@ -9,6 +9,18 @@ html, body{
 a{
   color: rgb(65, 130, 195);
 }
+hr{
+  height: 1px;
+  border: 0;
+  background: rgb(225,235,240);
+}
+code{
+  padding: 5px;
+  border-radius: 3px;
+  background-color:rgb(245,245,245);
+  border: 1px solid rgb(225,225,225);
+  display: inline-block;
+}
 /* ------------------ */
 /* Header */
 #header{
@@ -272,6 +284,13 @@ a{
   border-color: rgb(225,235,240);
   box-shadow: 0 -1px 0 rgb(225,235,240), -1px 0 0 rgb(225,235,240), 1px 0 0 rgb(225,235,240);
 }
+.issue-item.active:first-child{
+  border-top-left-radius: 4px;
+}
+.issue-item.active:last-child{
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 0 rgb(225,235,240), 0 -1px 0 rgb(225,235,240), -1px 0 0 rgb(225,235,240), 1px 0 0 rgb(225,235,240);
+}
 .issue-item.active:before, .issue-item.active:after{
   content: "";
   display: block;
@@ -317,11 +336,11 @@ a{
 }
 .issue-title{
   font-weight: normal;
-  font-size: 2em;
-  margin: 0 0 15px;
+  font-size: 1.8em;
+	line-height: 130%;
+  margin: 0 10px 15px 0;
 }
 .issue-title .issue-id{
-  padding-left: 10px;
   color: rgb(200,200,200);
 }
 .issue-details{
@@ -433,4 +452,31 @@ a{
 }
 .comment-content p:last-child{
   margin-bottom: 0;
+}
+.comment-content img{
+  max-width: 100%;
+}
+.comment-content h1, .comment-content h2{
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(240,240,240);
+  font-size: 2em;
+  line-height: 130%;
+}
+.comment-content h2{
+  font-size: 1.8em;
+}
+.comment-content h3{
+  line-height: 130%;
+  font-size: 1.5em;  
+}
+.comment-content h4{
+  line-height: 130%;
+  font-size: 1.2em;  
+}
+.comment-content h5, .comment-content h6{
+  line-height: 130%;
+  font-size: 1em;  
+}
+.comment-content h6{
+  color: rgb(100,100,100);
 }
