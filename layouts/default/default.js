@@ -3,6 +3,14 @@ $(document).ready(function(){
 	$("*.comment-content").each(function(i,sel){
 		$(sel).html(markdown.toHTML($(sel).text()));
 	});
+	
+	// set label color
+	$('.label').each(function(){
+		if( $(this).data("color") )
+		{
+			$(this).data('textcolor', getContrastYIQ($(this).data("color")));
+		}
+	});
 
 	//show all open issues
 	activateStateButton("filter_state_open");
@@ -118,8 +126,10 @@ function toggleLabel(id){
 	} else {
 		if(l.hasClass('active')){
 			l.removeClass('active');
+			l.find('a').css('color','');
 		} else {
 			l.addClass('active');
+			l.find('a').css('color',l.data('textcolor'));
 		}
 	}
 	reloadContent()
@@ -163,4 +173,12 @@ function commentCount(comments){
 		return "1 comment";
 	}
 	return comments+" comments";
+}
+
+function getContrastYIQ(hexcolor){
+	var r = parseInt(hexcolor.substr(0,2),16);
+	var g = parseInt(hexcolor.substr(2,2),16);
+	var b = parseInt(hexcolor.substr(4,2),16);
+	var yiq = ((r*299)+(g*587)+(b*114))/1000;
+	return (yiq >= 128) ? 'black' : 'white';
 }
