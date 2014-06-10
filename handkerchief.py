@@ -183,15 +183,15 @@ data['stylesheets'] = []
 if args.local_avatars:
 	av_style = ""
 	avatars = []
-	for comment in comments:
-		url = comment['user']['avatar_url']
-		avclass = 'avatar_' + comment['user']['login']
+	for item  in comments + data['issues']:
+		url = item['user']['avatar_url']
+		avclass = 'avatar_' + item['user']['login']
 		if not avclass in avatars:
 			r = requests.get(url,auth=auth)
 			if r.status_code == 200:
 				av_style += avatar_style % (avclass,base64.b64encode(r.content))
 				avatars.append(avclass)
-		comment['user']['avatar_class'] = avclass
+		item['user']['avatar_class'] = avclass
 	data['stylesheets'].append(av_style)
 
 #determine issue ids for comments
