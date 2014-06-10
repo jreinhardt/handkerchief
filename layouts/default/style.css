@@ -152,7 +152,7 @@ code{
 }
 /* ------------------ */
 /* Label */
-.label, .milestone{
+.label, .milestone, .assignee{
   display: none;
   width: 100%;
   line-height: 100%;
@@ -165,7 +165,7 @@ code{
   box-sizing: border-box;
   text-decoration: none;
 }
-.label.visible, .milestone.visible{
+.label.visible, .milestone.visible, .assignee.visible{
   display: block;
 }
 .label .bg{
@@ -190,7 +190,7 @@ code{
   height: 100%;
   z-index: 1;
 }
-.label a, .milestone a{
+.label a, .milestone a, .assignee a{
   border-radius: 3px;
   text-decoration: none;
   position: relative;
@@ -198,18 +198,24 @@ code{
   color: rgb(100,100,100);
   cursor: pointer;
   display: block;
-  padding: 4px 5px 4px;
-  transition: background-color .5s ease .0s;
+  padding: 4px 5px;
+  transition: background-color .5s ease .0s, padding .5s ease .0s;
+}
+.assignee a{
+  overflow: hidden;
+  padding: 10px 5px;  
 }
 .label:not(.active) a:hover, .milestone a:hover{
   background-color: rgb(235,235,235);
   }
-.milestone a{
-  color: rgb(100,100,100);
-}
 .milestone.active a{
   color: rgb(0,0,0);
   font-weight: bold;
+}
+.assignee.active a{
+  color: rgb(255,255,255);
+  background-color:rgb(70, 155, 230);
+  padding-left: 10px;
 }
 .label.active a{
   color: rgb(0,0,0);
