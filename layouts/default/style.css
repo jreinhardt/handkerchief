@@ -19,7 +19,7 @@ code{
   border-radius: 3px;
   background-color:rgb(245,245,245);
   border: 1px solid rgb(225,225,225);
-  display: inloine-block;
+  display: inline-block;
 }
 /* ------------------ */
 /* Header */
@@ -283,6 +283,13 @@ code{
   background-color: rgb(242,248,250);
   border-color: rgb(225,235,240);
   box-shadow: 0 -1px 0 rgb(225,235,240), -1px 0 0 rgb(225,235,240), 1px 0 0 rgb(225,235,240);
+}
+.issue-item.active:first-child{
+  border-top-left-radius: 4px;
+}
+.issue-item.active:last-child{
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 0 rgb(225,235,240), 0 -1px 0 rgb(225,235,240), -1px 0 0 rgb(225,235,240), 1px 0 0 rgb(225,235,240);
 }
 .issue-item.active:before, .issue-item.active:after{
   content: "";
