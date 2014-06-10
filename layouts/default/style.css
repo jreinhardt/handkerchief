@@ -191,6 +191,7 @@ code{
   z-index: 1;
 }
 .label a, .milestone a, .assignee a{
+  line-height: 130%;
   border-radius: 3px;
   text-decoration: none;
   position: relative;
