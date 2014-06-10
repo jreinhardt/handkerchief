@@ -127,7 +127,7 @@ except OSError:
 #parse command line arguments
 parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
 
-parser.add_argument("-o",dest="outname",default="issues.html",
+parser.add_argument("-o",dest="outname",default=None,
 	help="filename of output HTML file")
 parser.add_argument("-l",dest="layout",default="default",
 	help="name of a layout to use")
@@ -236,6 +236,9 @@ else:
 		data['stylesheets'].append(content)
 
 #populate template
-fid = open(args.outname,"w","utf8")
+if args.outname is None:
+	fid = open("issues-%s.html" % args.reponame.split("/")[1],"w","utf8")
+else:
+	fid = open(args.outname,"w","utf8")
 fid.write(template.render(data))
 fid.close()
