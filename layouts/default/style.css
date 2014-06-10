@@ -19,6 +19,7 @@ code{
   border-radius: 3px;
   background-color:rgb(245,245,245);
   border: 1px solid rgb(225,225,225);
+  display: inloine-block;
 }
 /* ------------------ */
 /* Header */
@@ -447,4 +448,28 @@ code{
 }
 .comment-content img{
   max-width: 100%;
+}
+.comment-content h1, .comment-content h2{
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgb(240,240,240);
+  font-size: 2em;
+  line-height: 130%;
+}
+.comment-content h2{
+  font-size: 1.8em;
+}
+.comment-content h3{
+  line-height: 130%;
+  font-size: 1.5em;  
+}
+.comment-content h4{
+  line-height: 130%;
+  font-size: 1.2em;  
+}
+.comment-content h5, .comment-content h6{
+  line-height: 130%;
+  font-size: 1em;  
+}
+.comment-content h6{
+  color: rgb(100,100,100);
 }
