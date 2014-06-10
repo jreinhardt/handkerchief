@@ -131,6 +131,8 @@ parser.add_argument("-o",dest="outname",default=None,
 	help="filename of output HTML file")
 parser.add_argument("-l",dest="layout",default="default",
 	help="name of a layout to use")
+parser.add_argument("-q",dest="verbose",default="store_false",
+	help="suppress output to stdout")
 parser.add_argument("--local",dest="local",action="store_true",
 	help="use local layouts instead, useful during development")
 parser.add_argument("-a",dest="auth",action="store_true",
@@ -150,6 +152,8 @@ else:
 	auth = None
 
 #request data from api
+if args.verbose:
+	print "Fetching data from GitHub ..."
 data = {}
 try:
 	data['issues']= []
