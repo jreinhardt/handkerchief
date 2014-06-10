@@ -1,7 +1,14 @@
 $(document).ready(function(){
 	//render markdown
+	marked.setOptions({
+		renderer: new marked.Renderer(),
+		gfm: true,
+		tables: true,
+		breaks: true,
+		smartypants: true
+	});
 	$("*.comment-content").each(function(i,sel){
-		$(sel).html(markdown.toHTML($(sel).text()));
+		$(sel).html(marked($(sel).text()));
 	});
 	
 	// set label color
