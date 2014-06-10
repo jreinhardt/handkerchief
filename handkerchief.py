@@ -35,7 +35,7 @@ from sys import exit
 from string import Template
 from codecs import open
 from jinja2 import Environment, FileSystemLoader, BaseLoader
-from os.path import join
+from os.path import join, realpath, dirname
 
 re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)")
 
@@ -210,7 +210,8 @@ for issue in data['issues']:
 
 #process parameters
 if args.local:
-	lroot = join("layouts",args.layout)
+	root = dirname(realpath(__file__))
+	lroot = join(root,"layouts",args.layout)
 	params = json.load(open(join(lroot,"%s.json" % args.layout),"r","utf8"))
 
 	#load layout
