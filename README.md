@@ -95,16 +95,20 @@ following variables are available:
   [GitHub API docs](https://developer.github.com/v3/repos/)
 * issues: a list of dictionaries containing issue data, see 
   [GitHub API docs](https://developer.github.com/v3/issues/). Each issue has an
-  additional fields 'labelnames' with a list of all labels and  'comments_list'
-  with a list of all comments (see 
-  [GitHub API docs](https://developer.github.com/v3/issues/comments)) for this
-  issue. The comment data is augmented by a string in
-  `comment['user']['avatar_class']` which contains a css class that sets the
-  avatar of the user as background image of the element.
+  additional field:
+  - 'labelnames' with a list of all labels for this issue
+  - 'comments_list' with a list of all comments  for this issue (see 
+    [GitHub API docs](https://developer.github.com/v3/issues/comments)).
+    The comment data is augmented by a string in
+    `comment['user']['avatar_class']` which contains a css class that sets the
+    avatar of the user as background image of the element.
+  - `issue['user']['avatar_class']` which works in the same way as in comments.
 * labels: a list of dictionaries containing label data, see
   [GitHub API docs](https://developer.github.com/v3/issues/labels)
 * milestones: a list of dictionaries containing milestone data, see
   [GitHub API docs](https://developer.github.com/v3/issues/milestones)
+* assignees: a list of dictionaries contining information about assigness, see
+  [GitHub API docs](https://developer.github.com/v3/issues/assignees)
 * javascript: a dictionary with the names of the javascript files as keys, and
   their contents as values. Additionally it contains a stylesheet that defines
   classes of the form `avatar_username` that set the avatar of a user as
