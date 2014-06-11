@@ -13,14 +13,8 @@ $(document).ready(function(){
 		}
 	};
 	renderer.paragraph = function(text){
-		console.log(text)
 		if (/^\s*\[[x ]\]\s*/.test(text)) {
-			console.log(/^\s*\[ \]\s*/.test(text));
-			console.log(/^\s*\[x\]\s*/.test(text));
-			text = text
-				.replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
-				.replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
-			console.log(text);
+			return text;
 		}
 		  return '<p>' + text + '</p>\n';
 	};
