@@ -1,12 +1,37 @@
 $(document).ready(function(){
+
 	//render markdown
+	renderer = new marked.Renderer();
+	renderer.listitem = function(text){
+		if (/^\s*\[[x ]\]\s*/.test(text)) {
+			text = text
+				.replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
+				.replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
+			return '<li style="list-style: none">' + text + '</li>';
+		} else {
+			return '<li>' + text + '</li>';
+		}
+	};
+	renderer.paragraph = function(text){
+		console.log(text)
+		if (/^\s*\[[x ]\]\s*/.test(text)) {
+			console.log(/^\s*\[ \]\s*/.test(text));
+			console.log(/^\s*\[x\]\s*/.test(text));
+			text = text
+				.replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
+				.replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
+			console.log(text);
+		}
+		  return '<p>' + text + '</p>\n';
+	};
 	marked.setOptions({
-		renderer: new marked.Renderer(),
+		renderer: renderer,
 		gfm: true,
 		tables: true,
 		breaks: true,
 		smartypants: true
 	});
+
 	$("*.comment-content").each(function(i,sel){
 		$(sel).html(marked($(sel).text()));
 	});
