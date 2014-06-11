@@ -5,11 +5,11 @@ $(document).ready(function(){
 	renderer.listitem = function(text){
 		if (/^\s*\[[x ]\]\s*/.test(text)) {
 			text = text
-				.replace(/^\s*\[ \]\s*/, '<i class="empty checkbox icon"></i> ')
-				.replace(/^\s*\[x\]\s*/, '<i class="checked checkbox icon"></i> ');
-			return '<li style="list-style: none">' + text + '</li>';
+				.replace(/^\s*\[ \]\s*/, '<input type="checkbox" disabled="disabled" /> ')
+				.replace(/^\s*\[x\]\s*/, '<input type="checkbox" checked disabled="disabled" /> ');
+			return '<li class="list-item todo-item">' + text + '</li>';
 		} else {
-			return '<li>' + text + '</li>';
+			return '<li class="list-item">' + text + '</li>';
 		}
 	};
 	renderer.paragraph = function(text){
