@@ -487,3 +487,16 @@ code{
 .comment-content h6{
   color: rgb(100,100,100);
 }
+.comment-content ul{
+  padding-left: 20px;
+}
+.comment-content .list-item p{
+  margin-bottom: 0;
+}
+.comment-content .todo-item{
+  list-style: none;
+  margin-left: -22px;
+}
+.comment-content .todo-item ul{
+  margin-left: 22px;
+}
