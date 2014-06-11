@@ -14,13 +14,6 @@ hr{
   border: 0;
   background: rgb(225,235,240);
 }
-code{
-  padding: 5px;
-  border-radius: 3px;
-  background-color:rgb(245,245,245);
-  border: 1px solid rgb(225,225,225);
-  display: inline-block;
-}
 /* ------------------ */
 /* Header */
 #header{
@@ -499,4 +492,17 @@ code{
 }
 .comment-content .todo-item ul{
   margin-left: 22px;
+}
+.comment-content code{
+  border-radius: 3px;
+  background-color:rgb(245,245,245);
+  border: 1px solid rgb(225,225,225);
+  display: inline-block;
+  padding: 0px 2px;
+  line-height: 135%;
+}
+.comment-content pre code{
+  display: block;
+  padding: 5px;
+  line-height: 150%;
 }
