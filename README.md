@@ -91,6 +91,7 @@ it resides. It contains an associative array with three keys:
 The template is processed by [Jinja2](http://jinja.pocoo.org/), and the
 following variables are available:
 
+* reponame: a string with the name of the repository in the form username/reponame
 * repo: a dictionary containing information about the repository, see
   [GitHub API docs](https://developer.github.com/v3/repos/)
 * issues: a list of dictionaries containing issue data, see 

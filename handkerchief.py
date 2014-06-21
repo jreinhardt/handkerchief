@@ -109,6 +109,68 @@ def get_all_pages(url,re_last_page,auth=None):
 			data += request.json()
 		return data
 
+def get_data(reponame,auth,local_avatars):
+	data = {}
+	data['reponame'] = reponame
+	try:
+		data['issues'] = []
+		for state in ["open","closed"]:
+			data['issues']+= get_all_pages(issue_url % (reponame,state),issue_last_re % state,auth)
+
+		repo_request = requests.get(repo_url % reponame,auth=auth)
+		if not repo_request.ok:
+			print "There is a problem with the request"
+			print repo_url % reponame
+			print repo_request
+			exit(1)
+		data['repo'] = repo_request.json()
+		
+		comments = get_all_pages(comment_url % reponame, comment_last_re,auth)
+		data['labels'] = get_all_pages(label_url % reponame, label_last_re,auth)
+		data['milestones'] = get_all_pages(milestone_url % reponame, milestone_last_re,auth)
+		data['assignees'] = get_all_pages(assignee_url % reponame, assignee_last_re,auth)
+
+	except requests.exceptions.ConnectionError:
+		print "Could not connect to GitHub. Please check your internet connection"
+		exit(1)
+
+	data['javascript'] = []
+	data['stylesheets'] = []
+
+	#fetch avatars and convert to base64
+	if local_avatars:
+		av_style = ""
+		avatars = []
+		for item  in comments + data['issues']:
+			url = item['user']['avatar_url']
+			avclass = 'avatar_' + item['user']['login']
+			if not avclass in avatars:
+				r = requests.get(url,auth=auth)
+				if r.status_code == 200:
+					av_style += avatar_style % (avclass,base64.b64encode(r.content))
+					avatars.append(avclass)
+			item['user']['avatar_class'] = avclass
+		data['stylesheets'].append(av_style)
+
+	#determine issue ids for comments
+	for issue in data['issues']:
+		issue['comments_list'] = []
+	for comment in comments:
+		match = re.match(comment_issue_re % reponame,comment['html_url'])
+
+		if not match is None:
+			for issue in data['issues']:
+				if int(issue['number']) == int(match.group(1)):
+					issue['comments_list'].append(comment)
+					break
+			else:
+				print "Issue %s not found" % match.group(1)
+
+	#add labelnames to issues
+	for issue in data['issues']:
+		issue['labelnames'] = [l['name'] for l in issue['labels']]
+	return data
+
 #try to figure out repo from git repo in current directory
 reponame = None
 try:
@@ -157,64 +219,8 @@ else:
 #request data from api
 if args.verbose:
 	print "Fetching data from GitHub ..."
-data = {}
-try:
-	data['issues']= []
-	for state in ["open","closed"]:
-		data['issues']+= get_all_pages(issue_url % (args.reponame,state),issue_last_re % state,auth)
 
-	repo_request = requests.get(repo_url % args.reponame,auth=auth)
-	if not repo_request.ok:
-		print "There is a problem with the request"
-		print repo_url % args.reponame
-		print repo_request
-		exit(1)
-	data['repo'] = repo_request.json()
-	
-	comments = get_all_pages(comment_url % args.reponame, comment_last_re,auth)
-	data['labels'] = get_all_pages(label_url % args.reponame, label_last_re,auth)
-	data['milestones'] = get_all_pages(milestone_url % args.reponame, milestone_last_re,auth)
-	data['assignees'] = get_all_pages(assignee_url % args.reponame, assignee_last_re,auth)
-
-except requests.exceptions.ConnectionError:
-	print "Could not connect to GitHub. Please check your internet connection"
-	exit(1)
-
-data['javascript'] = []
-data['stylesheets'] = []
-
-#fetch avatars and convert to base64
-if args.local_avatars:
-	av_style = ""
-	avatars = []
-	for item  in comments + data['issues']:
-		url = item['user']['avatar_url']
-		avclass = 'avatar_' + item['user']['login']
-		if not avclass in avatars:
-			r = requests.get(url,auth=auth)
-			if r.status_code == 200:
-				av_style += avatar_style % (avclass,base64.b64encode(r.content))
-				avatars.append(avclass)
-		item['user']['avatar_class'] = avclass
-	data['stylesheets'].append(av_style)
-
-#determine issue ids for comments
-for issue in data['issues']:
-	issue['comments_list'] = []
-for comment in comments:
-	match = re.match(comment_issue_re % args.reponame,comment['html_url'])
-
-	if not match is None:
-		for issue in data['issues']:
-			if int(issue['number']) == int(match.group(1)):
-				issue['comments_list'].append(comment)
-				break
-		else:
-			print "Issue %s not found" % match.group(1)
-
-#add labelnames to issues
-for issue in data['issues']:
-	issue['labelnames'] = [l['name'] for l in issue['labels']]
+data = get_data(args.reponame,auth,args.local_avatars)
 
 #process parameters
 if args.local:
