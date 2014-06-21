@@ -31,6 +31,7 @@ import subprocess
 import re
 import base64
 import getpass
+import glob
 from sys import exit
 from string import Template
 from codecs import open
@@ -59,6 +60,8 @@ repo_url = 'https://api.github.com/repos/%s?'
 file_url = 'https://api.github.com/repos/%s/contents/%s'
 
 avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); background-size: 100%% 100%%;}\n"
+
+repo_marker_re = "<!--\s*([^\s]*)\s-->"
 
 def get_github_content(repo,path,auth=None):
 	request = requests.get(file_url % (repo,path),auth=auth)
@@ -171,8 +174,8 @@ def get_data(reponame,auth,local_avatars):
 		issue['labelnames'] = [l['name'] for l in issue['labels']]
 	return data
 
-#try to figure out repo from git repo in current directory
-reponame = None
+reponames = []
+#try to figure out the repo from git repo in current directory
 try:
 	remote_data = subprocess.check_output(["git","remote","-v","show"])
 	branches = {}
@@ -186,8 +189,21 @@ try:
 	reponame = branches.values()[0]
 	if "origin" in branches:
 		reponame = branches["origin"]
+	reponames.append(reponame)
 except OSError:
 	pass
+#scan html files for further repos to consider
+for fname in glob.iglob("*.html"):
+	fid = open(fname,"r","utf8")
+	#check the second line for the repo marker
+	fid.readline()
+	line = fid.readline()
+	match = re.match(repo_marker_re,line)
+	if not match is None:
+		print match.group(1)
+		reponames.append(match.group(1))
+
+reponames = list(set(reponames))
 
 #parse command line arguments
 parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
@@ -204,10 +220,14 @@ parser.add_argument("-a",dest="auth",action="store_true",
 	help="authenticate, is sometimes necessary to avoid rate limiting")
 parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
 	help="do not embed avatars, leads to smaller results")
-parser.add_argument("reponame",default=reponame,nargs="?",
+parser.add_argument("reponame",default=[reponame],nargs="*",
 	help="GitHub repo in the form username/reponame. If not given, handkerchief guesses")
 
 args = parser.parse_args()
+
+if len(args.reponame) > 1 and not args.outname is None:
+	print "Output filename is impossible if multiple repos are given"
+	exit(1)
 
 if args.auth:
 	username = raw_input("Username: ")
@@ -216,13 +236,9 @@ if args.auth:
 else:
 	auth = None
 
-#request data from api
-if args.verbose:
-	print "Fetching data from GitHub ..."
-
-data = get_data(args.reponame,auth,args.local_avatars)
-
 #process parameters
+layout_js = []
+layout_css = []
 if args.local:
 	root = dirname(realpath(__file__))
 	lroot = join(root,"layouts",args.layout)
@@ -232,8 +248,8 @@ if args.local:
 	env = Environment(loader=FileSystemLoader(lroot))
 	template = env.get_template(params['html'])
 
-	data['javascript'] = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
-	data['stylesheets'] += [open(join(lroot,n),"r","utf8").read() for n in params['css']]
+	layout_js = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
+	layout_css = [open(join(lroot,n),"r","utf8").read() for n in params['css']]
 else:
 	params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
 	params = json.loads(params)
@@ -244,15 +260,23 @@ else:
 
 	for n in params['js']:
 		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
-		data['javascript'].append({'name' : n, 'content' : content})
+		layout_js.append({'name' : n, 'content' : content})
 	for n in params['css']:
 		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
-		data['stylesheets'].append(content)
+		layout_css.append(content)
 
-#populate template
-if args.outname is None:
-	fid = open("issues-%s.html" % args.reponame.split("/")[1],"w","utf8")
-else:
-	fid = open(args.outname,"w","utf8")
-fid.write(template.render(data))
-fid.close()
+for repo in args.reponame:
+	#request data from api
+	if args.verbose:
+		print "Fetching data for %s ..." % repo
+	data = get_data(repo,auth,args.local_avatars)
+	data['javascript'] += layout_js
+	data['stylesheets'] += layout_css
+
+	#populate template
+	if args.outname is None:
+		fid = open("issues-%s.html" % repo.split("/")[1],"w","utf8")
+	else:
+		fid = open(args.outname,"w","utf8")
+	fid.write(template.render(data))
+	fid.close()
