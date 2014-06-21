@@ -32,6 +32,7 @@ import re
 import base64
 import getpass
 import glob
+import os
 from sys import exit
 from string import Template
 from codecs import open
@@ -177,7 +178,8 @@ def get_data(reponame,auth,local_avatars):
 reponames = []
 #try to figure out the repo from git repo in current directory
 try:
-	remote_data = subprocess.check_output(["git","remote","-v","show"])
+	with open(os.devnull) as devnull:
+		remote_data = subprocess.check_output(["git","remote","-v","show"],stderr=devnull)
 	branches = {}
 	for line in remote_data.split("\n"):
 		if line.strip() == "":
@@ -185,12 +187,14 @@ try:
 		remote_match = re_mote.match(line)
 		if not remote_match is None:
 			branches[remote_match.group(1)] = remote_match.group(5)
-
-	reponame = branches.values()[0]
-	if "origin" in branches:
-		reponame = branches["origin"]
-	reponames.append(reponame)
+	if len(branches) > 0:
+		if "origin" in branches:
+			reponames.append(branches["origin"])
+		else:
+			reponames.append(branches.values()[0])
 except OSError:
+	pass
+except subprocess.CalledProcessError:
 	pass
 #scan html files for further repos to consider
 for fname in glob.iglob("*.html"):
@@ -200,7 +204,6 @@ for fname in glob.iglob("*.html"):
 	line = fid.readline()
 	match = re.match(repo_marker_re,line)
 	if not match is None:
-		print match.group(1)
 		reponames.append(match.group(1))
 
 reponames = list(set(reponames))
