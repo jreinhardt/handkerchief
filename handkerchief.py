@@ -220,10 +220,14 @@ parser.add_argument("-a",dest="auth",action="store_true",
 	help="authenticate, is sometimes necessary to avoid rate limiting")
 parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
 	help="do not embed avatars, leads to smaller results")
-parser.add_argument("reponame",default=[reponame],nargs="*",
+parser.add_argument("reponame",default=reponames,nargs="*",
 	help="GitHub repo in the form username/reponame. If not given, handkerchief guesses")
 
 args = parser.parse_args()
+
+if len(args.reponame) == 0:
+	print "No repository was given and handkerchief failed to guess one"
+	exit(1)
 
 if len(args.reponame) > 1 and not args.outname is None:
 	print "Output filename is impossible if multiple repos are given"
