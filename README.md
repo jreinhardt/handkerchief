@@ -91,10 +91,11 @@ it resides. It contains an associative array with three keys:
 The template is processed by [Jinja2](http://jinja.pocoo.org/), and the
 following variables are available:
 
-* reponame: a string with the name of the repository in the form username/reponame
+* reponame: a string with the name of the repository in the form
+  username/reponame
 * repo: a dictionary containing information about the repository, see
   [GitHub API docs](https://developer.github.com/v3/repos/)
-* issues: a list of dictionaries containing issue data, see 
+* issues: a list of dictionaries containing issue data, see
   [GitHub API docs](https://developer.github.com/v3/issues/). Each issue has an
   additional field:
   - 'labelnames' with a list of all labels for this issue
@@ -110,11 +111,11 @@ following variables are available:
   [GitHub API docs](https://developer.github.com/v3/issues/milestones)
 * assignees: a list of dictionaries contining information about assigness, see
   [GitHub API docs](https://developer.github.com/v3/issues/assignees)
-* javascript: a dictionary with the names of the javascript files as keys, and
-  their contents as values. Additionally it contains a stylesheet that defines
-  classes of the form `avatar_username` that set the avatar of a user as
-  background image of an element.
-* stylesheets: a list with the contents of the stylesheets
+* javascript: a list of dictionaries with the names and contents of the
+  javascript files.
+* stylesheets: a list with the contents of the stylesheets. Additionally it
+  contains a stylesheet that defines classes of the form `avatar_username` that
+set the avatar of a user as background image of an element.
 
 If you have created a new layout or improved a existing one, feel free to open
 a pull request, contributions are always welcome!
