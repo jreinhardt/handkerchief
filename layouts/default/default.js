@@ -23,9 +23,18 @@ $(document).ready(function(){
 		gfm: true,
 		tables: true,
 		breaks: true,
-		smartypants: true
+		smartypants: true,
+		highlight: function (code,lang) {
+			var result;
+			if(typeof lang == "undefined"){
+				result = hljs.highlightAuto(code);
+			} else {
+				result = hljs.highlight(lang,code);
+			}
+			return result.value;
+		}
 	});
- 		
+		
 	$("*.comment-content").each(function(i,sel){
 		$(sel).html(marked($(sel).text()));
 	});
@@ -50,9 +59,6 @@ $(document).ready(function(){
 	$('*.issue-item').removeClass('active');
 	$('*.issue-item').first().addClass('active');
 	reloadContent();
-  $('pre code').each(function(i, block) {
-	  hljs.highlightBlock(block);
-  });
 });
 
 function reloadContent(){
