@@ -25,7 +25,7 @@ $(document).ready(function(){
 		breaks: true,
 		smartypants: true
 	});
-
+ 		
 	$("*.comment-content").each(function(i,sel){
 		$(sel).html(marked($(sel).text()));
 	});
@@ -50,9 +50,13 @@ $(document).ready(function(){
 	$('*.issue-item').removeClass('active');
 	$('*.issue-item').first().addClass('active');
 	reloadContent();
+  $('pre code').each(function(i, block) {
+	  hljs.highlightBlock(block);
+  });
 });
 
 function reloadContent(){
+	
 	var state;
 	if ($("#filter_state_open").hasClass("active")){
 		state = "open";
@@ -74,7 +78,6 @@ function reloadContent(){
 	$('.assignee.active').each(function(i,sel){
 		assignees.push($(sel).data('login'));
 	});
-	console.log(assignees)
 
 	//filter items
 	var items = $('.issue-item');

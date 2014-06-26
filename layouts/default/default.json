@@ -1,5 +1,5 @@
 {
 "html" : "default.html",
-"css" : ["style.css"],
-"js" : ["jquery-2.1.1.min.js", "marked.min.js", "default.js"]
+"css" : ["style.css","github.css"],
+"js" : ["jquery-2.1.1.min.js","highlight.js", "marked.min.js", "default.js"]
 }
