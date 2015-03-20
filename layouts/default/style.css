@@ -317,7 +317,7 @@ hr{
 }
 /* ------------------ */
 /* Issue */
-.issue{
+.issue {
   display: none;
   padding-top: 10px;
   float: left;
@@ -505,4 +505,5 @@ hr{
   display: block;
   padding: 5px;
   line-height: 150%;
+  overflow: auto;
 }
