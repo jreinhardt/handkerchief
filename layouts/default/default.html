@@ -70,7 +70,7 @@
 				data-milestone="{{ issue['milestone']['number'] }}"
 				data-labels="{{ " ".join(issue['labelnames']) }}"
 				data-assignee="{{ issue['assignee']['login'] }}">
-					<a href="javascript:activateIssue({{ issue['number'] }})">{{ issue['title'] }}</a>
+					<a href="javascript:activateIssue({{ issue['number'] }})">{{ issue['title']|e }}</a>
 			</li>
 			{% endfor %}
 		  </ul>
@@ -91,9 +91,9 @@
 			</div>
 			<div class="comment">
 				<div class="comment-details">
-          <strong>{{ issue['user']['login'] }}</strong> commented on this issue <span class="timeago" data-time="{{ issue['created_at'] }}">{{ issue['created_at'] }}</span>
+					<strong>{{ issue['user']['login'] }}</strong> commented on this issue <span class="timeago" data-time="{{ issue['created_at'] }}">{{ issue['created_at'] }}</span>
 				</div>
-				<div class="comment-content">{{ issue['body'] }}</div>
+				<div class="comment-content">{{ issue['body']|e }}</div>
 			</div>
 			{% endif %}
 
@@ -105,7 +105,7 @@
 				<div class="comment-details">
 					<div class="comment-author"><strong>{{ comment['user']['login'] }}</strong> commented on this issue <span class="timeago" data-time="{{ comment['created_at'] }}">{{ comment['created_at'] }}</span></div>
 				</div>
-				<div class="comment-content">{{ comment['body'] }}</div>
+				<div class="comment-content">{{ comment['body']|e }}</div>
 			</div>
 			{% endif %}
 			{% endfor %}
