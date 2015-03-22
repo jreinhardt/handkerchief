@@ -113,12 +113,13 @@ def get_all_pages(url,re_last_page,auth=None):
 			data += request.json()
 		return data
 
-def get_data(reponame,auth,local_avatars):
+def get_data(reponame,auth,local_avatars,states):
 	data = {}
 	data['reponame'] = reponame
 	try:
 		data['issues'] = []
-		for state in ["open","closed"]:
+
+		for state in states:
 			data['issues']+= get_all_pages(issue_url % (reponame,state),issue_last_re % state,auth)
 
 		repo_request = requests.get(repo_url % reponame,auth=auth)
@@ -167,8 +168,6 @@ def get_data(reponame,auth,local_avatars):
 				if int(issue['number']) == int(match.group(1)):
 					issue['comments_list'].append(comment)
 					break
-			else:
-				print "Issue %s not found" % match.group(1)
 
 	#add labelnames to issues
 	for issue in data['issues']:
@@ -217,6 +216,8 @@ parser.add_argument("-l",dest="layout",default="default",
 	help="name of a layout to use")
 parser.add_argument("-q",dest="verbose",default="store_false",
 	help="suppress output to stdout")
+parser.add_argument("--state",dest="state",default="all",choices=["all","open","closed"],
+	help="download issues of this state only")
 parser.add_argument("--local",dest="local",action="store_true",
 	help="use local layouts instead, useful during development")
 parser.add_argument("-a",dest="auth",action="store_true",
@@ -276,7 +277,11 @@ for repo in args.reponame:
 	#request data from api
 	if args.verbose:
 		print "Fetching data for %s ..." % repo
-	data = get_data(repo,auth,args.local_avatars)
+	if args.state == "all":
+		states = ["open","closed"]
+	else:
+		states = [args.state]
+	data = get_data(repo,auth,args.local_avatars,states)
 	data['javascript'] += layout_js
 	data['stylesheets'] += layout_css
 
