@@ -56,8 +56,7 @@ manager. On MacOS you can install the dependencies by:
 # using homebrew
 brew install python
 # using pip
-pip install requests
-pip install Jinja2
+pip install -r requirements.txt
 ````
 
 For Windows there is an installer for Python available from the [Python
@@ -65,8 +64,7 @@ Website](http://www.python.org/downloads), and the rest can be installed via
 pip:
 
 ```bash
-pip install requests
-pip install Jinja2
+pip install -r requirements.txt
 ````
 
 ## Layouts
