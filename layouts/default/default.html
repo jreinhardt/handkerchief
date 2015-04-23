@@ -14,6 +14,7 @@
 			{{ css }}
 		</style>
 		{% endfor %}
+		<title>Issues for {{ repo['name'] }}</title>
 	</head>
 	<body>
 		<div id="header">
@@ -25,7 +26,7 @@
 			<div id="nav">
 				<ul>
 					<li class="btn-group">
-						<a class="btn btn-group--left active state-open" id="filter_state_open" href="javascript:activateStateButton('filter_state_open')">Open</a>
+			Close.io			<a class="btn btn-group--left active state-open" id="filter_state_open" href="javascript:activateStateButton('filter_state_open')">Open</a>
 						<a class="btn btn-group--right state-closed" id="filter_state_closed" href="javascript:activateStateButton('filter_state_closed')">Closed</a>
 					</li>
 				</ul>
