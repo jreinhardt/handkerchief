@@ -222,8 +222,10 @@ parser.add_argument("--local",dest="local",action="store_true",
 	help="use local layouts instead, useful during development")
 parser.add_argument("-a",dest="auth",action="store_true",
 	help="authenticate, is sometimes necessary to avoid rate limiting")
-parser.add_argument("--user", help="Username for authentication")
-parser.add_argument("--token", help="Use Github token for authentication instead of password")
+parser.add_argument("--user", help="Username for authentication",
+	default=os.environ.get("GITHUB_USERNAME"))
+parser.add_argument("--token", help="Use Github token for authentication instead of password",
+	default=os.environ.get("GITHUB_ACCESS_TOKEN"))
 parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
 	help="do not embed avatars, leads to smaller results")
 parser.add_argument("reponame",default=reponames,nargs="*",
