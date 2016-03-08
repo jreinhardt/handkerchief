@@ -1,15 +1,18 @@
-# Handkerchief - a simple offline issue reader for GitHub Issues
+Handkerchief - a simple offline issue reader for GitHub Issues
+==============================================================
 
 This script allows you to easily download the open issues of a GitHub
 Repository and store them in a offline browsable, single standalone html file.
 
-## The name
+The name
+--------
 
 I chose the name, because the obvious pun name "tissues" was already taken. It
 also fits, because being offline is somewhat oldfashioned, just like the word
 handkerchief.
 
-## Getting Started
+Getting Started
+---------------
 
 Clone the repository anywhere onto your machine and just call the script with
 the user or organisation and repository name
@@ -19,31 +22,33 @@ the user or organisation and repository name
 If you are on a mac you can optionally add the following to your
 ~/.bash_profile.
 
-```bash
-function handkerchief {
-  # change this path to the location of handkerchief.py
-  hand=~/handkerchief/handkerchief.py
-  if [[ $1 != "" ]] ; then
-    python $hand $1
-	else
-    repo=$(git remote -v | head -n1 | awk '{print $2}' | sed -e 's,.*:\(.*/\)\?,,' -e 's/\.git$//')
-    if [[ $repo == *https://* ]] ; then
-      python $hand ${repo#https://github.com/}
-    elif [[ $repo == *git@github.com* ]] ; then
-      python $hand ${repo#git@github.com:}
-    else
-      echo "Provide parameter"
-    fi
-  fi
-}
-```
-	
+.. code:: bash
+
+   function handkerchief {
+     # change this path to the location of handkerchief.py
+     hand=~/handkerchief/handkerchief.py
+     if [[ $1 != "" ]] ; then
+       python $hand $1
+   	else
+       repo=$(git remote -v | head -n1 | awk '{print $2}' | sed -e 's,.*:\(.*/\)\?,,' -e 's/\.git$//')
+       if [[ $repo == *https://* ]] ; then
+         python $hand ${repo#https://github.com/}
+       elif [[ $repo == *git@github.com* ]] ; then
+         python $hand ${repo#git@github.com:}
+       else
+         echo "Provide parameter"
+       fi
+     fi
+   }
+
+
 Now you can run `handkerchief jreinhardt/handkerchief` or if you are within the
 repository just `handkerchief`.
 
 There are a few options available, for details see `handkerchief --help`.
 
-## Dependencies
+Dependencies
+------------
 
 Requires [Python 2.7](http://www.python.org), the
 [Jinja2 template system](http://jinja.pocoo.org/)  and the
@@ -52,22 +57,23 @@ Requires [Python 2.7](http://www.python.org), the
 For most Linux distributions, these should be available via the package
 manager. On MacOS you can install the dependencies by:
 
-```bash
-# using homebrew
-brew install python
-# using pip
-pip install -r requirements.txt
-````
+.. code:: bash
+
+   # using homebrew
+   brew install python
+   # using pip
+   pip install -r requirements.txt
 
 For Windows there is an installer for Python available from the [Python
 Website](http://www.python.org/downloads), and the rest can be installed via
 pip:
 
-```bash
-pip install -r requirements.txt
-````
+.. code:: bash
 
-## Layouts
+   pip install -r requirements.txt
+
+Layouts
+-------
 
 Handkerchief offers a simple way to modify the visual appearance and
 functionality of the resulting offline html file, by changing to a different layout.
@@ -97,11 +103,13 @@ following variables are available:
   [GitHub API docs](https://developer.github.com/v3/issues/). Each issue has an
   additional field:
   - 'labelnames' with a list of all labels for this issue
-  - 'comments_list' with a list of all comments  for this issue (see 
-    [GitHub API docs](https://developer.github.com/v3/issues/comments)).
-    The comment data is augmented by a string in
-    `comment['user']['avatar_class']` which contains a css class that sets the
-    avatar of the user as background image of the element.
+
+  - 'comments_list' with a list of all comments  for this issue
+    (see [GitHub API docs](https://developer.github.com/v3/issues/comments)).  The
+    comment data is augmented by a string in `comment['user']['avatar_class']`
+    which contains a css class that sets the avatar of the user as background
+    image of the element.
+
   - `issue['user']['avatar_class']` which works in the same way as in comments.
 * labels: a list of dictionaries containing label data, see
   [GitHub API docs](https://developer.github.com/v3/issues/labels)
@@ -113,12 +121,24 @@ following variables are available:
   javascript files.
 * stylesheets: a list with the contents of the stylesheets. Additionally it
   contains a stylesheet that defines classes of the form `avatar_username` that
-set the avatar of a user as background image of an element.
+  set the avatar of a user as background image of an element.
 
 If you have created a new layout or improved a existing one, feel free to open
 a pull request, contributions are always welcome!
 
-## License
+Contributors
+------------
+
+There are a few people that contributed to handkerchief and therefore deserve to credit:
+
+* lukasoppermann turned the initial HTML template from horrible to beauti- and useful
+* laurentj contributed several small layout fixes
+* DonnchaC added code for authenticating by token
+* philfreo contributed a requirements.txt
+
+
+License
+-------
 
 Handkerchief is licensed under the [MIT license](http://opensource.org/licenses/MIT)
 
