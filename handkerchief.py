@@ -174,128 +174,131 @@ def get_data(reponame,auth,local_avatars,states):
 		issue['labelnames'] = [l['name'] for l in issue['labels']]
 	return data
 
-reponames = []
-#try to figure out the repo from git repo in current directory
-try:
-	with open(os.devnull) as devnull:
-		remote_data = subprocess.check_output(["git","remote","-v","show"],stderr=devnull)
-	branches = {}
-	for line in remote_data.split("\n"):
-		if line.strip() == "":
-			continue
-		remote_match = re_mote.match(line)
-		if not remote_match is None:
-			branches[remote_match.group(1)] = remote_match.group(5)
-	if len(branches) > 0:
-		if "origin" in branches:
-			reponames.append(branches["origin"])
+def main():
+	reponames = []
+
+	#try to figure out the repo from git repo in current directory
+	try:
+		with open(os.devnull) as devnull:
+			remote_data = subprocess.check_output(["git","remote","-v","show"],stderr=devnull)
+		branches = {}
+		for line in remote_data.split("\n"):
+			if line.strip() == "":
+				continue
+			remote_match = re_mote.match(line)
+			if not remote_match is None:
+				branches[remote_match.group(1)] = remote_match.group(5)
+		if len(branches) > 0:
+			if "origin" in branches:
+				reponames.append(branches["origin"])
+			else:
+				reponames.append(branches.values()[0])
+	except OSError:
+		pass
+	except subprocess.CalledProcessError:
+		pass
+
+	#scan html files for further repos to consider
+	for fname in glob.iglob("*.html"):
+		fid = open(fname,"r","utf8")
+		#check the second line for the repo marker
+		fid.readline()
+		line = fid.readline()
+		match = re.match(repo_marker_re,line)
+		if not match is None:
+			reponames.append(match.group(1))
+
+		reponames = list(set(reponames))
+
+	#parse command line arguments
+	parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
+
+	parser.add_argument("-o",dest="outname",default=None,
+		help="filename of output HTML file")
+	parser.add_argument("-l",dest="layout",default="default",
+		help="name of a layout to use")
+	parser.add_argument("-q",dest="verbose",default="store_false",
+		help="suppress output to stdout")
+	parser.add_argument("--state",dest="state",default="all",choices=["all","open","closed"],
+		help="download issues of this state only")
+	parser.add_argument("--local",dest="local",action="store_true",
+		help="use local layouts instead, useful during development")
+	parser.add_argument("-a",dest="auth",action="store_true",
+		help="authenticate, is sometimes necessary to avoid rate limiting")
+	parser.add_argument("--user", help="Username for authentication",
+		default=os.environ.get("GITHUB_USERNAME"))
+	parser.add_argument("--token", help="Use Github token for authentication instead of password",
+		default=os.environ.get("GITHUB_ACCESS_TOKEN"))
+	parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
+		help="do not embed avatars, leads to smaller results")
+	parser.add_argument("reponame",default=reponames,nargs="*",
+		help="GitHub repo in the form username/reponame. If not given, handkerchief guesses")
+
+	args = parser.parse_args()
+
+	if len(args.reponame) == 0:
+		print "No repository was given and handkerchief failed to guess one"
+		exit(1)
+
+	if len(args.reponame) > 1 and not args.outname is None:
+		print "Output filename is impossible if multiple repos are given"
+		exit(1)
+
+
+	if args.token or args.auth:
+		username = args.user or raw_input("Username: ")
+		if args.token:
+			auth = (username, args.token)
 		else:
-			reponames.append(branches.values()[0])
-except OSError:
-	pass
-except subprocess.CalledProcessError:
-	pass
-#scan html files for further repos to consider
-for fname in glob.iglob("*.html"):
-	fid = open(fname,"r","utf8")
-	#check the second line for the repo marker
-	fid.readline()
-	line = fid.readline()
-	match = re.match(repo_marker_re,line)
-	if not match is None:
-		reponames.append(match.group(1))
-
-reponames = list(set(reponames))
-
-#parse command line arguments
-parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
-
-parser.add_argument("-o",dest="outname",default=None,
-	help="filename of output HTML file")
-parser.add_argument("-l",dest="layout",default="default",
-	help="name of a layout to use")
-parser.add_argument("-q",dest="verbose",default="store_false",
-	help="suppress output to stdout")
-parser.add_argument("--state",dest="state",default="all",choices=["all","open","closed"],
-	help="download issues of this state only")
-parser.add_argument("--local",dest="local",action="store_true",
-	help="use local layouts instead, useful during development")
-parser.add_argument("-a",dest="auth",action="store_true",
-	help="authenticate, is sometimes necessary to avoid rate limiting")
-parser.add_argument("--user", help="Username for authentication",
-	default=os.environ.get("GITHUB_USERNAME"))
-parser.add_argument("--token", help="Use Github token for authentication instead of password",
-	default=os.environ.get("GITHUB_ACCESS_TOKEN"))
-parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
-	help="do not embed avatars, leads to smaller results")
-parser.add_argument("reponame",default=reponames,nargs="*",
-	help="GitHub repo in the form username/reponame. If not given, handkerchief guesses")
-
-args = parser.parse_args()
-
-if len(args.reponame) == 0:
-	print "No repository was given and handkerchief failed to guess one"
-	exit(1)
-
-if len(args.reponame) > 1 and not args.outname is None:
-	print "Output filename is impossible if multiple repos are given"
-	exit(1)
-
-
-if args.token or args.auth:
-	username = args.user or raw_input("Username: ")
-	if args.token:
-		auth = (username, args.token)
+			auth = (username, getpass.getpass())
 	else:
-		auth = (username, getpass.getpass())
-else:
-	auth = None
+		auth = None
 
-#process parameters
-layout_js = []
-layout_css = []
-if args.local:
-	root = dirname(realpath(__file__))
-	lroot = join(root,"layouts",args.layout)
-	params = json.load(open(join(lroot,"%s.json" % args.layout),"r","utf8"))
+	#process parameters
+	layout_js = []
+	layout_css = []
+	if args.local:
+		root = dirname(realpath(__file__))
+		lroot = join(root,"layouts",args.layout)
+		params = json.load(open(join(lroot,"%s.json" % args.layout),"r","utf8"))
 
-	#load layout
-	env = Environment(loader=FileSystemLoader(lroot))
-	template = env.get_template(params['html'])
+		#load layout
+		env = Environment(loader=FileSystemLoader(lroot))
+		template = env.get_template(params['html'])
 
-	layout_js = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
-	layout_css = [open(join(lroot,n),"r","utf8").read() for n in params['css']]
-else:
-	params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
-	params = json.loads(params)
-
-	#load layout
-	env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.layout,auth))
-	template = env.get_template(params['html'])
-
-	for n in params['js']:
-		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
-		layout_js.append({'name' : n, 'content' : content})
-	for n in params['css']:
-		content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
-		layout_css.append(content)
-
-for repo in args.reponame:
-	#request data from api
-	if args.verbose:
-		print "Fetching data for %s ..." % repo
-	if args.state == "all":
-		states = ["open","closed"]
+		layout_js = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
+		layout_css = [open(join(lroot,n),"r","utf8").read() for n in params['css']]
 	else:
-		states = [args.state]
-	data = get_data(repo,auth,args.local_avatars,states)
-	data['javascript'] += layout_js
-	data['stylesheets'] += layout_css
+		params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
+		params = json.loads(params)
 
-	#populate template
-	if args.outname is None:
-		fid = open("issues-%s.html" % repo.split("/")[1],"w","utf8")
-	else:
-		fid = open(args.outname,"w","utf8")
-	fid.write(template.render(data))
-	fid.close()
+		#load layout
+		env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.layout,auth))
+		template = env.get_template(params['html'])
+
+		for n in params['js']:
+			content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
+			layout_js.append({'name' : n, 'content' : content})
+		for n in params['css']:
+			content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
+			layout_css.append(content)
+
+	for repo in args.reponame:
+		#request data from api
+		if args.verbose:
+			print "Fetching data for %s ..." % repo
+		if args.state == "all":
+			states = ["open","closed"]
+		else:
+			states = [args.state]
+		data = get_data(repo,auth,args.local_avatars,states)
+		data['javascript'] += layout_js
+		data['stylesheets'] += layout_css
+
+		#populate template
+		outname = args.outname or "issues-%s.html" % repo.split("/")[1]
+		with open(outname,"w","utf8") as fid:
+			fid.write(template.render(data))
+
+if __name__ == '__main__':
+	main()
