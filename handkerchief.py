@@ -107,7 +107,7 @@ def get_all_pages(url,re_last_page,auth=None):
 			print request.headers["link"]
 
 		last_page = int(result.group(2))
-		
+
 		for i in range(2,last_page+1):
 			request = requests.get(url_temp % i,auth=auth)
 			data += request.json()
@@ -129,7 +129,7 @@ def get_data(reponame,auth,local_avatars,states):
 			print repo_request
 			exit(1)
 		data['repo'] = repo_request.json()
-		
+
 		comments = get_all_pages(comment_url % reponame, comment_last_re,auth)
 		data['labels'] = get_all_pages(label_url % reponame, label_last_re,auth)
 		data['milestones'] = get_all_pages(milestone_url % reponame, milestone_last_re,auth)
@@ -222,6 +222,10 @@ parser.add_argument("--local",dest="local",action="store_true",
 	help="use local layouts instead, useful during development")
 parser.add_argument("-a",dest="auth",action="store_true",
 	help="authenticate, is sometimes necessary to avoid rate limiting")
+parser.add_argument("--user", help="Username for authentication",
+	default=os.environ.get("GITHUB_USERNAME"))
+parser.add_argument("--token", help="Use Github token for authentication instead of password",
+	default=os.environ.get("GITHUB_ACCESS_TOKEN"))
 parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
 	help="do not embed avatars, leads to smaller results")
 parser.add_argument("reponame",default=reponames,nargs="*",
@@ -237,10 +241,13 @@ if len(args.reponame) > 1 and not args.outname is None:
 	print "Output filename is impossible if multiple repos are given"
 	exit(1)
 
-if args.auth:
-	username = raw_input("Username: ")
-	password = getpass.getpass()
-	auth = (username,password)
+
+if args.token or args.auth:
+	username = args.user or raw_input("Username: ")
+	if args.token:
+		auth = (username, args.token)
+	else:
+		auth = (username, getpass.getpass())
 else:
 	auth = None
 
