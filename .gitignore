@@ -5,3 +5,5 @@ Thumbs.db
 .*.swp
 *.html
 venv
+dist
+*.egg-info/
