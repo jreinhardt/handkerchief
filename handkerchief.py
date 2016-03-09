@@ -65,6 +65,9 @@ avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); backgro
 repo_marker_re = "<!--\s*([^\s]*)\s-->"
 
 def get_github_content(repo,path,auth=None):
+	"""
+	Retrieve text files from a github repo
+	"""
 	request = requests.get(file_url % (repo,path),auth=auth)
 	if not request.ok:
 		print "There is a problem with the request"
@@ -76,6 +79,9 @@ def get_github_content(repo,path,auth=None):
 	return request.json()['content'].decode('base64').decode('utf8')
 
 class GitHubLoader(BaseLoader):
+	"""
+	A loader for Jinja templates that fetches them from a GitHub repository
+	"""
 	def __init__(self, repo, layout,auth=None):
 		self.repo = repo
 		self.layout = layout
@@ -113,7 +119,7 @@ def get_all_pages(url,re_last_page,auth=None):
 			data += request.json()
 		return data
 
-def get_data(reponame,auth,local_avatars,states):
+def fetch_issue_data(reponame,auth,local_avatars,states):
 	data = {}
 	data['reponame'] = reponame
 	try:
@@ -174,7 +180,10 @@ def get_data(reponame,auth,local_avatars,states):
 		issue['labelnames'] = [l['name'] for l in issue['labels']]
 	return data
 
-def main():
+def collect_reponames():
+	"""
+	Try to figure out a list of repos to consider by default from the contents of the working directory.
+	"""
 	reponames = []
 
 	#try to figure out the repo from git repo in current directory
@@ -209,6 +218,10 @@ def main():
 			reponames.append(match.group(1))
 
 		reponames = list(set(reponames))
+	return reponames
+
+def main():
+	reponames = collect_reponames()
 
 	#parse command line arguments
 	parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
@@ -291,7 +304,7 @@ def main():
 			states = ["open","closed"]
 		else:
 			states = [args.state]
-		data = get_data(repo,auth,args.local_avatars,states)
+		data = fetch_issue_data(repo,auth,args.local_avatars,states)
 		data['javascript'] += layout_js
 		data['stylesheets'] += layout_css
 
