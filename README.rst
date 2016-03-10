@@ -11,10 +11,13 @@ I chose the name, because the obvious pun name "tissues" was already taken. It
 also fits, because being offline is somewhat oldfashioned, just like the word
 handkerchief.
 
+Installation
+------------
+
 There are three ways to set handkerchief up:
 
 Using pip
----------
+.........
 
 This is the easiest way and probably the right choice for most people. Make
 sure you have `pip <https://pip.pypa.io/en/stable/>`_ installed and type
@@ -33,7 +36,7 @@ You can now invoke handkerchief from everywhere using
    handkerchief
 
 In a virtualenv
----------------
+...............
 
 If a system wide installation with pip is too intrusive for you, and you need
 handkerchief only in a certain environment, you can try
@@ -51,7 +54,7 @@ You can then invoke handkerchief while you are in the virtualenv by typing
    handkerchief
 
 As standalone script
---------------------
+....................
 
 You can take just the handkerchief.py from the repository and put it where you need it. No installation required. From there you can invoke it with
 
@@ -60,7 +63,7 @@ You can take just the handkerchief.py from the repository and put it where you n
    python handkerchief.py --remote-layouts
 
 From repository
----------------
+...............
 
 You can also clone the repository to some place on your computer and use it
 from there. Depending on your system, you might want to make it available from
@@ -88,9 +91,38 @@ For example, if you are on a mac you can optionally add the following to your
      fi
    }
 
+Dependencies
+............
+
+If you are not using pip, you need to make sure that the following dependencies are available:
+
+* `Python 2.7 <http://www.python.org>`_
+* `Jinja2 <http://jinja.pocoo.org/>`_
+* `requests <http://www.python-requests.org/>`_
+
+For most Linux distributions, these should be available via the package
+manager. On MacOS you can install the dependencies by:
+
+.. code:: bash
+
+   # using homebrew
+   brew install python
+   # using pip
+   pip install -r requirements.txt
+
+For Windows there is an installer for Python available from the
+`Python Website <http://www.python.org/downloads>`_, and the rest can be 
+installed via pip:
+
+.. code:: bash
+
+   pip install -r requirements.txt
+
+Using Handkerchief
+------------------
 
 Specifying repositories
------------------------
+.......................
 
 The simplest way to use handkerchief is to call it with the user or
 organisation and repository name
@@ -115,7 +147,7 @@ directory, it extracts the repositories to check from them.
    handkerchief
 
 Commandline parameters
-----------------------
+......................
 
 There are a few options available, for example to choose a layout, specify how to authenticate (to avoid GitHubs rate limits) and much more.
 
@@ -127,7 +159,7 @@ For details see
 
 
 Layouts
--------
+.......
 
 Handkerchief offers a simple way to modify the visual appearance and
 functionality of the resulting offline html file, by changing to a different layout.
@@ -186,33 +218,14 @@ following variables are available:
 If you have created a new layout or improved a existing one, feel free to open
 a pull request, contributions are always welcome!
 
-Dependencies
+Contributing
 ------------
 
-Requires `Python 2.7 <http://www.python.org>`_, the
-`Jinja2 template system <http://jinja.pocoo.org/>`_  and the
-`requests library <http://www.python-requests.org/>`_.
-
-For most Linux distributions, these should be available via the package
-manager. On MacOS you can install the dependencies by:
-
-.. code:: bash
-
-   # using homebrew
-   brew install python
-   # using pip
-   pip install -r requirements.txt
-
-For Windows there is an installer for Python available from the
-`Python Website <http://www.python.org/downloads>`_, and the rest can be 
-installed via pip:
-
-.. code:: bash
-
-   pip install -r requirements.txt
+You find the source code for handkerchief on `GitHub <https://github.com/jreinhardt/handkerchief>`_
+If you want to contribute, feel free to submit a pull request.
 
 Contributors
-------------
+............
 
 There are a few people that contributed to handkerchief and therefore deserve to credit:
 
@@ -223,7 +236,7 @@ There are a few people that contributed to handkerchief and therefore deserve to
 
 
 License
--------
+.......
 
 Handkerchief is licensed under the `MIT license <http://opensource.org/licenses/MIT>`_
 
