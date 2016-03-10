@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Handkerchief: A GitHub Issues offline reader
 # https://github.com/jreinhardt/handkerchief
 #
@@ -36,8 +35,9 @@ import os
 from sys import exit
 from string import Template
 from codecs import open
-from jinja2 import Environment, FileSystemLoader, BaseLoader
+from jinja2 import Environment, FileSystemLoader, BaseLoader, PackageLoader
 from os.path import join, realpath, dirname
+from pkg_resources import resource_string
 
 re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)")
 
@@ -72,7 +72,7 @@ def get_github_content(repo,path,auth=None):
 	if not request.ok:
 		print "There is a problem with the request"
 		print file_url % (repo,path)
-		print request
+		print request.json()
 		exit(1)
 	if not request.json()['encoding'] == 'base64':
 		raise RuntimeError("Unknown Encoding encountered when fetching %s from repo %s: %s" % (path,repo,request.json()['encoding']))
@@ -90,6 +90,68 @@ class GitHubLoader(BaseLoader):
 	def get_source(self, environment, template):
 		source = get_github_content(self.repo,'layouts/%s/%s' % (self.layout,template),self.auth)
 		return source,None, lambda: False
+
+class Layout:
+	def __init__(self,layout):
+		self.layout = layout
+		self.js = []
+		self.css = []
+		self.template = None
+
+	def init_local(self,layout_dir):
+		layout_root = join(layout_dir,self.layout)
+		with open(join(layout_root,"%s.json" % self.layout),"r","utf8") as fid:
+			params = json.load(fid)
+
+		#load layout
+		env = Environment(loader=FileSystemLoader(layout_root))
+		self.template = env.get_template(params['html'])
+
+		for n in params['js']:
+			self.js.append({
+				'name' : n,
+				'content' : open(join(layout_root,n),"r","utf8").read()
+			})
+
+		for n in params['css']:
+			self.css.append(open(join(layout_root,n),"r","utf8").read())
+
+	def init_remote(self,auth):
+		repo = 'jreinhardt/handkerchief'
+		layout_root = join('layouts',self.layout)
+
+		params = get_github_content(repo,join(layout_root,'%s.json' % self.layout),auth)
+		params = json.loads(params)
+
+		#load layout
+		env = Environment(loader=GitHubLoader(repo,self.layout,auth))
+		self.template = env.get_template(params['html'])
+
+		for n in params['js']:
+			self.js.append({
+				'name' : n,
+				'content' : get_github_content(repo,join(layout_root,n),auth)
+			})
+		for n in params['css']:
+			self.css.append(get_github_content(repo,join(layout_root,n),auth))
+
+	def init_package(self):
+		layout_root = join('layouts',self.layout)
+		package = 'handkerchief'
+
+		p = resource_string(__name__,join(layout_root,'%s.json' % self.layout))
+		params = json.loads(p.decode('utf8'))
+
+		env = Environment(loader=PackageLoader(package,layout_root))
+		self.template = env.get_template(params['html'])
+		
+		for n in params['js']:
+			self.js.append({
+				'name' : n,
+				'content' : resource_string(__name__,join(layout_root,n)).decode('utf8')
+			})
+		for n in params['css']:
+			self.css.append(resource_string(__name__,join(layout_root,n)).decode('utf8'))
 
 #url must contain some parameters
 def get_all_pages(url,re_last_page,auth=None):
@@ -234,8 +296,10 @@ def main():
 		help="suppress output to stdout")
 	parser.add_argument("--state",dest="state",default="all",choices=["all","open","closed"],
 		help="download issues of this state only")
-	parser.add_argument("--local",dest="local",action="store_true",
-		help="use local layouts instead, useful during development")
+	parser.add_argument("--layout-dir",dest="layout_dir",default=None,
+		help="use layouts from the given directory, useful during development")
+	parser.add_argument("--remote-layouts",dest="remote_layouts",action="store_true",
+		help="get layouts from GitHub, useful standalone script standalone mode")
 	parser.add_argument("-a",dest="auth",action="store_true",
 		help="authenticate, is sometimes necessary to avoid rate limiting")
 	parser.add_argument("--user", help="Username for authentication",
@@ -267,34 +331,18 @@ def main():
 	else:
 		auth = None
 
-	#process parameters
-	layout_js = []
-	layout_css = []
-	if args.local:
-		root = dirname(realpath(__file__))
-		lroot = join(root,"layouts",args.layout)
-		params = json.load(open(join(lroot,"%s.json" % args.layout),"r","utf8"))
 
-		#load layout
-		env = Environment(loader=FileSystemLoader(lroot))
-		template = env.get_template(params['html'])
-
-		layout_js = [{'name' : n, 'content' : open(join(lroot,n),"r","utf8").read()} for n in params['js']]
-		layout_css = [open(join(lroot,n),"r","utf8").read() for n in params['css']]
+	layout = Layout(args.layout)
+	if args.layout_dir:
+		layout.init_local(args.layout_dir)
+	elif args.remote_layouts:
+		layout.init_remote(auth)
 	else:
-		params = get_github_content('jreinhardt/handkerchief','layouts/%s/%s.json' % (args.layout,args.layout),auth)
-		params = json.loads(params)
-
-		#load layout
-		env = Environment(loader=GitHubLoader('jreinhardt/handkerchief',args.layout,auth))
-		template = env.get_template(params['html'])
-
-		for n in params['js']:
-			content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
-			layout_js.append({'name' : n, 'content' : content})
-		for n in params['css']:
-			content = get_github_content('jreinhardt/handkerchief','layouts/%s/%s' %(args.layout,n),auth)
-			layout_css.append(content)
+		try:
+			layout.init_package()
+		except Exception as e:
+			print e
+			layout.init_remote(auth)
 
 	for repo in args.reponame:
 		#request data from api
@@ -305,13 +353,13 @@ def main():
 		else:
 			states = [args.state]
 		data = fetch_issue_data(repo,auth,args.local_avatars,states)
-		data['javascript'] += layout_js
-		data['stylesheets'] += layout_css
+		data['javascript'] += layout.js
+		data['stylesheets'] += layout.css
 
 		#populate template
 		outname = args.outname or "issues-%s.html" % repo.split("/")[1]
 		with open(outname,"w","utf8") as fid:
-			fid.write(template.render(data))
+			fid.write(layout.template.render(data))
 
 if __name__ == '__main__':
 	main()
