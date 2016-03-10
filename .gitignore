@@ -7,3 +7,4 @@ Thumbs.db
 venv
 dist
 *.egg-info/
+*.pyc
