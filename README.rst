@@ -17,7 +17,7 @@ Using pip
 ---------
 
 This is the easiest way and probably the right choice for most people. Make
-sure you have [pip](https://pip.pypa.io/en/stable/) installed and type
+sure you have `pip <https://pip.pypa.io/en/stable/>`_ installed and type
 
 .. code:: bash
 
@@ -37,7 +37,7 @@ In a virtualenv
 
 If a system wide installation with pip is too intrusive for you, and you need
 handkerchief only in a certain environment, you can try
-[virtualenv](https://virtualenv.pypa.io/en/latest/). Within the activated
+`virtualenv <https://virtualenv.pypa.io/en/latest/>`_. Within the activated
 virtualenv, just type
 
 .. code:: bash
@@ -152,31 +152,31 @@ it resides. It contains an associative array with three keys:
 * css: a list of filenames of stylesheets to inline
 * js: a list of filenames of javascript files to inline
 
-The template is processed by [Jinja2](http://jinja.pocoo.org/), and the
+The template is processed by `Jinja2 <http://jinja.pocoo.org/>`_, and the
 following variables are available:
 
 * reponame: a string with the name of the repository in the form
   username/reponame
 * repo: a dictionary containing information about the repository, see
-  [GitHub API docs](https://developer.github.com/v3/repos/)
+  `GitHub API docs (1) <https://developer.github.com/v3/repos/>`_
 * issues: a list of dictionaries containing issue data, see
-  [GitHub API docs](https://developer.github.com/v3/issues/). Each issue has an
-  additional field:
+  `GitHub API docs (2) <https://developer.github.com/v3/issues/>`_. Each 
+  issue has an additional field:
   - 'labelnames' with a list of all labels for this issue
 
   - 'comments_list' with a list of all comments  for this issue
-    (see [GitHub API docs](https://developer.github.com/v3/issues/comments)).  The
-    comment data is augmented by a string in `comment['user']['avatar_class']`
+    (see `GitHub API docs (3) <https://developer.github.com/v3/issues/comments>`_).
+    The comment data is augmented by a string in `comment['user']['avatar_class']`
     which contains a css class that sets the avatar of the user as background
     image of the element.
 
   - `issue['user']['avatar_class']` which works in the same way as in comments.
 * labels: a list of dictionaries containing label data, see
-  [GitHub API docs](https://developer.github.com/v3/issues/labels)
+  `GitHub API docs (4) <https://developer.github.com/v3/issues/labels>`_
 * milestones: a list of dictionaries containing milestone data, see
-  [GitHub API docs](https://developer.github.com/v3/issues/milestones)
+  `GitHub API docs (5) <https://developer.github.com/v3/issues/milestones>`_
 * assignees: a list of dictionaries contining information about assigness, see
-  [GitHub API docs](https://developer.github.com/v3/issues/assignees)
+  `GitHub API docs (6) <https://developer.github.com/v3/issues/assignees>`_
 * javascript: a list of dictionaries with the names and contents of the
   javascript files.
 * stylesheets: a list with the contents of the stylesheets. Additionally it
@@ -189,9 +189,9 @@ a pull request, contributions are always welcome!
 Dependencies
 ------------
 
-Requires [Python 2.7](http://www.python.org), the
-[Jinja2 template system](http://jinja.pocoo.org/)  and the
-[requests library](http://www.python-requests.org/).
+Requires `Python 2.7 <http://www.python.org>`_, the
+`Jinja2 template system <http://jinja.pocoo.org/>`_  and the
+`requests library <http://www.python-requests.org/>`_.
 
 For most Linux distributions, these should be available via the package
 manager. On MacOS you can install the dependencies by:
@@ -203,9 +203,9 @@ manager. On MacOS you can install the dependencies by:
    # using pip
    pip install -r requirements.txt
 
-For Windows there is an installer for Python available from the [Python
-Website](http://www.python.org/downloads), and the rest can be installed via
-pip:
+For Windows there is an installer for Python available from the
+`Python Website <http://www.python.org/downloads>`_, and the rest can be 
+installed via pip:
 
 .. code:: bash
 
@@ -225,7 +225,7 @@ There are a few people that contributed to handkerchief and therefore deserve to
 License
 -------
 
-Handkerchief is licensed under the [MIT license](http://opensource.org/licenses/MIT)
+Handkerchief is licensed under the `MIT license <http://opensource.org/licenses/MIT>`_
 
     The MIT License (MIT)
 
