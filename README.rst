@@ -146,6 +146,20 @@ directory, it extracts the repositories to check from them.
    cd /path/to/directory/with/handkerchief/htmls
    handkerchief
 
+Authentication
+..............
+
+Handkerchief will try to read your Github username and authentication tokens from your local
+and global Git configs. You can set your credentials with the git config command:
+
+.. code:: bash
+
+   git config --global github.user jreinhardt
+   git config --global github.token d564d8becdec716c4e122bc21b61a07fcff377ea
+
+Your token can also be specified in the ``GITHUB_ACCESS_TOKEN`` environment variable or with the
+``--token`` commandline parameter.
+
 Commandline parameters
 ......................
 

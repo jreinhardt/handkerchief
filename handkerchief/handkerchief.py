@@ -282,8 +282,23 @@ def collect_reponames():
 		reponames = list(set(reponames))
 	return reponames
 
+
+def collect_github_config():
+	"""
+	Try load Github configuration such as usernames from the local or global git config
+	"""
+	github_config = {}
+	for field in ["user", "token"]:
+		try:
+			github_config[field] = subprocess.check_output(["git", "config", "github.{}".format(field)]).strip()
+		except (OSError, subprocess.CalledProcessError):
+			pass
+	return github_config
+
+
 def main():
 	reponames = collect_reponames()
+	github_config = collect_github_config()
 
 	#parse command line arguments
 	parser = argparse.ArgumentParser("Download GitHub Issues into self-contained HTML file")
@@ -303,9 +318,9 @@ def main():
 	parser.add_argument("-a",dest="auth",action="store_true",
 		help="authenticate, is sometimes necessary to avoid rate limiting")
 	parser.add_argument("--user", help="Username for authentication",
-		default=os.environ.get("GITHUB_USERNAME"))
+		default=os.environ.get("GITHUB_USERNAME", github_config.get("user")))
 	parser.add_argument("--token", help="Use Github token for authentication instead of password",
-		default=os.environ.get("GITHUB_ACCESS_TOKEN"))
+		default=os.environ.get("GITHUB_ACCESS_TOKEN", github_config.get("token")))
 	parser.add_argument("--no-local-avatars",dest="local_avatars",action="store_false",
 		help="do not embed avatars, leads to smaller results")
 	parser.add_argument("reponame",default=reponames,nargs="*",
