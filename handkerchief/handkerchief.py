@@ -39,7 +39,7 @@ from jinja2 import Environment, FileSystemLoader, BaseLoader, PackageLoader
 from os.path import join, realpath, dirname
 from pkg_resources import resource_string
 
-re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_/]*)\.git\s*\(([a-z]*)\)")
+re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_\-/]*)\.git\s*\(([a-z]*)\)")
 
 issue_url = 'https://api.github.com/repos/%s/issues?state=%s&filter=all&direction=asc'
 issue_last_re = '<https://api.github.com/repositories/([0-9]*)/issues\?state=%s&filter=all&direction=asc&page=([0-9]*)>; rel="last"'
