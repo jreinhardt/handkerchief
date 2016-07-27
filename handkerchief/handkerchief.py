@@ -41,26 +41,26 @@ from pkg_resources import resource_string
 
 re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_\-/]*)\.git\s*\(([a-z]*)\)")
 
-issue_url = 'https://api.github.com/repos/%s/issues?state=%s&filter=all&direction=asc'
-issue_last_re = '<https://api.github.com/repositories/([0-9]*)/issues\?state=%s&filter=all&direction=asc&page=([0-9]*)>; rel="last"'
+issue_url = 'https://api.github.com/repos/{repo}/issues?state={state}&filter=all&direction=asc'
+issue_last_re = '<https://api.github.com/repositories/([0-9]*)/issues\?state={state}&filter=all&direction=asc&page=([0-9]*)>; rel="last"'
 
-comment_url = 'https://api.github.com/repos/%s/issues/comments?'
+comment_url = 'https://api.github.com/repos/{repo}/issues/comments?'
 comment_last_re = '<https://api.github.com/repositories/([0-9]*)/issues/comments\?page=([0-9]*)>; rel="last"'
-comment_issue_re = 'https://github.com/%s/issues/([0-9]*)#issuecomment-[0-9]*'
+comment_issue_re = 'https://github.com/{repo}/issues/([0-9]*)#issuecomment-[0-9]*'
 
-label_url = 'https://api.github.com/repos/%s/labels?'
+label_url = 'https://api.github.com/repos/{repo}/labels?'
 label_last_re = '<https://api.github.com/repositories/([0-9]*)/labels\?page=([0-9]*)>; rel="last"'
 
-milestone_url = 'https://api.github.com/repos/%s/milestones?'
+milestone_url = 'https://api.github.com/repos/{repo}/milestones?'
 milestone_last_re = '<https://api.github.com/repositories/([0-9]*)/milestones\?page=([0-9]*)>; rel="last"'
 
-assignee_url = 'https://api.github.com/repos/%s/assignees?'
+assignee_url = 'https://api.github.com/repos/{repo}/assignees?'
 assignee_last_re = '<https://api.github.com/repositories/([0-9]*)/assignees\?page=([0-9]*)>; rel="last"'
 
-repo_url = 'https://api.github.com/repos/%s?'
-file_url = 'https://api.github.com/repos/%s/contents/%s'
+repo_url = 'https://api.github.com/repos/{name}?'
+file_url = 'https://api.github.com/repos/{repo}/contents/{path}'
 
-avatar_style = "div.%s {background-image: url(data:image/png;base64,%s); background-size: 100%% 100%%;}\n"
+avatar_style = "div.{cls} {{background-image: url(data:image/png;base64,{img}); background-size: 100% 100%;}}\n"
 
 repo_marker_re = "<!--\s*([^\s]*)\s-->"
 
@@ -68,14 +68,14 @@ def get_github_content(repo,path,auth=None):
 	"""
 	Retrieve text files from a github repo
 	"""
-	request = requests.get(file_url % (repo,path),auth=auth)
+	request = requests.get(file_url.format(repo=repo, path=path), auth=auth)
 	if not request.ok:
-		print "There is a problem with the request"
-		print file_url % (repo,path)
-		print request.json()
+		print("There is a problem with the request")
+		print(file_url.format(repo=repo, path=path))
+		print(request.json())
 		exit(1)
 	if not request.json()['encoding'] == 'base64':
-		raise RuntimeError("Unknown Encoding encountered when fetching %s from repo %s: %s" % (path,repo,request.json()['encoding']))
+		raise RuntimeError("Unknown Encoding encountered when fetching {} from repo {}: {}".format(path,repo,request.json()['encoding']))
 	return request.json()['content'].decode('base64').decode('utf8')
 
 class GitHubLoader(BaseLoader):
@@ -88,7 +88,7 @@ class GitHubLoader(BaseLoader):
 		self.auth = auth
 
 	def get_source(self, environment, template):
-		source = get_github_content(self.repo,'layouts/%s/%s' % (self.layout,template),self.auth)
+		source = get_github_content(self.repo,'layouts/{}/{}'.format(self.layout,template),self.auth)
 		return source,None, lambda: False
 
 class Layout:
@@ -100,7 +100,7 @@ class Layout:
 
 	def init_local(self,layout_dir):
 		layout_root = join(layout_dir,self.layout)
-		with open(join(layout_root,"%s.json" % self.layout),"r","utf8") as fid:
+		with open(join(layout_root,"{}.json".format(self.layout)),"r","utf8") as fid:
 			params = json.load(fid)
 
 		#load layout
@@ -120,7 +120,7 @@ class Layout:
 		repo = 'jreinhardt/handkerchief'
 		layout_root = join('layouts',self.layout)
 
-		params = get_github_content(repo,join(layout_root,'%s.json' % self.layout),auth)
+		params = get_github_content(repo,join(layout_root,'{}.json'.format(self.layout)),auth)
 		params = json.loads(params)
 
 		#load layout
@@ -139,7 +139,7 @@ class Layout:
 		layout_root = join('layouts',self.layout)
 		package = 'handkerchief'
 
-		p = resource_string(__name__,join(layout_root,'%s.json' % self.layout))
+		p = resource_string(__name__,join(layout_root,'{}.json'.format(self.layout)))
 		params = json.loads(p.decode('utf8'))
 
 		env = Environment(loader=PackageLoader(package,layout_root))
@@ -155,15 +155,15 @@ class Layout:
 
 #url must contain some parameters
 def get_all_pages(url,re_last_page,auth=None):
-	url_temp = url + "&page=%d"
+	url_temp = url + "&page={}"
 
 	data = []
 	i = 1
-	request = requests.get(url_temp % i,auth=auth)
+	request = requests.get(url_temp.format(i),auth=auth)
 	if not request.ok:
-		print "There is a problem with the request"
-		print url_temp % i
-		print request
+		print("There is a problem with the request")
+		print(url_temp.format(i))
+		print(request)
 		exit(1)
 	data += request.json()
 	if not 'link' in request.headers:
@@ -172,12 +172,12 @@ def get_all_pages(url,re_last_page,auth=None):
 	else:
 		result = re.match(re_last_page,request.headers["link"].split(',')[-1].strip())
 		if result is None:
-			print request.headers["link"]
+			print(request.headers["link"])
 
 		last_page = int(result.group(2))
 
 		for i in range(2,last_page+1):
-			request = requests.get(url_temp % i,auth=auth)
+			request = requests.get(url_temp.format(i),auth=auth)
 			data += request.json()
 		return data
 
@@ -188,23 +188,23 @@ def fetch_issue_data(reponame,auth,local_avatars,states):
 		data['issues'] = []
 
 		for state in states:
-			data['issues']+= get_all_pages(issue_url % (reponame,state),issue_last_re % state,auth)
+			data['issues']+=get_all_pages(issue_url.format(repo=reponame,state=state),issue_last_re.format(state=state),auth)
 
-		repo_request = requests.get(repo_url % reponame,auth=auth)
+		repo_request = requests.get(repo_url.format(name=reponame), auth=auth)
 		if not repo_request.ok:
-			print "There is a problem with the request"
-			print repo_url % reponame
-			print repo_request
+			print("There is a problem with the request")
+			print(repo_url.format(name=reponame))
+			print(repo_request)
 			exit(1)
 		data['repo'] = repo_request.json()
 
-		comments = get_all_pages(comment_url % reponame, comment_last_re,auth)
-		data['labels'] = get_all_pages(label_url % reponame, label_last_re,auth)
-		data['milestones'] = get_all_pages(milestone_url % reponame, milestone_last_re,auth)
-		data['assignees'] = get_all_pages(assignee_url % reponame, assignee_last_re,auth)
+		comments = get_all_pages(comment_url.format(repo=reponame), comment_last_re,auth)
+		data['labels'] = get_all_pages(label_url.format(repo=reponame), label_last_re,auth)
+		data['milestones'] = get_all_pages(milestone_url.format(repo=reponame), milestone_last_re,auth)
+		data['assignees'] = get_all_pages(assignee_url.format(repo=reponame), assignee_last_re,auth)
 
 	except requests.exceptions.ConnectionError:
-		print "Could not connect to GitHub. Please check your internet connection"
+		print("Could not connect to GitHub. Please check your internet connection")
 		exit(1)
 
 	data['javascript'] = []
@@ -220,7 +220,8 @@ def fetch_issue_data(reponame,auth,local_avatars,states):
 			if not avclass in avatars:
 				r = requests.get(url,auth=auth)
 				if r.status_code == 200:
-					av_style += avatar_style % (avclass,base64.b64encode(r.content))
+					img_data = base64.b64encode(r.content).decode('utf-8')
+					av_style += avatar_style.format(cls=avclass,img=img_data)
 					avatars.append(avclass)
 			item['user']['avatar_class'] = avclass
 		data['stylesheets'].append(av_style)
@@ -229,7 +230,7 @@ def fetch_issue_data(reponame,auth,local_avatars,states):
 	for issue in data['issues']:
 		issue['comments_list'] = []
 	for comment in comments:
-		match = re.match(comment_issue_re % reponame,comment['html_url'])
+		match = re.match(comment_issue_re.format(repo=reponame),comment['html_url'])
 
 		if not match is None:
 			for issue in data['issues']:
@@ -253,7 +254,7 @@ def collect_reponames():
 		with open(os.devnull) as devnull:
 			remote_data = subprocess.check_output(["git","remote","-v","show"],stderr=devnull)
 		branches = {}
-		for line in remote_data.split("\n"):
+		for line in remote_data.decode('utf-8').split("\n"):
 			if line.strip() == "":
 				continue
 			remote_match = re_mote.match(line)
@@ -290,7 +291,7 @@ def collect_github_config():
 	github_config = {}
 	for field in ["user", "token"]:
 		try:
-			github_config[field] = subprocess.check_output(["git", "config", "github.{}".format(field)]).strip()
+			github_config[field] = subprocess.check_output(["git", "config", "github.{}".format(field)]).decode('utf-8').strip()
 		except (OSError, subprocess.CalledProcessError):
 			pass
 	return github_config
@@ -329,11 +330,11 @@ def main():
 	args = parser.parse_args()
 
 	if len(args.reponame) == 0:
-		print "No repository was given and handkerchief failed to guess one"
+		print("No repository was given and handkerchief failed to guess one")
 		exit(1)
 
 	if len(args.reponame) > 1 and not args.outname is None:
-		print "Output filename is impossible if multiple repos are given"
+		print("Output filename is impossible if multiple repos are given")
 		exit(1)
 
 
@@ -356,13 +357,13 @@ def main():
 		try:
 			layout.init_package()
 		except Exception as e:
-			print e
+			print(e)
 			layout.init_remote(auth)
 
 	for repo in args.reponame:
 		#request data from api
 		if args.verbose:
-			print "Fetching data for %s ..." % repo
+			print("Fetching data for {} ...".format(repo))
 		if args.state == "all":
 			states = ["open","closed"]
 		else:
@@ -372,7 +373,7 @@ def main():
 		data['stylesheets'] += layout.css
 
 		#populate template
-		outname = args.outname or "issues-%s.html" % repo.split("/")[1]
+		outname = args.outname or "issues-{repo}.html".format(repo=repo.split("/")[1])
 		with open(outname,"w","utf8") as fid:
 			fid.write(layout.template.render(data))
 
