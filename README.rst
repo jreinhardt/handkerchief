@@ -96,7 +96,7 @@ Dependencies
 
 If you are not using pip, you need to make sure that the following dependencies are available:
 
-* `Python 2.7 <http://www.python.org>`_
+* `Python 2.7 or 3.4 <http://www.python.org>`_
 * `Jinja2 <http://jinja.pocoo.org/>`_
 * `requests <http://www.python-requests.org/>`_
 
@@ -247,6 +247,7 @@ There are a few people that contributed to handkerchief and therefore deserve to
 * laurentj contributed several small layout fixes
 * DonnchaC added code for authenticating by token
 * philfreo contributed a requirements.txt
+* avbop for porting to python 3
 
 
 License
