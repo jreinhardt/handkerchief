@@ -38,6 +38,7 @@ from codecs import open
 from jinja2 import Environment, FileSystemLoader, BaseLoader, PackageLoader
 from os.path import join, realpath, dirname
 from pkg_resources import resource_string
+from builtins import input
 
 re_mote = re.compile("([a-zA-Z0-9_]*)\s*((git@github.com\:)|(https://github.com/))([a-zA-Z0-9_\-/]*)\.git\s*\(([a-z]*)\)")
 
@@ -339,7 +340,7 @@ def main():
 
 
 	if args.token or args.auth:
-		username = args.user or raw_input("Username: ")
+		username = args.user or input("Username: ")
 		if args.token:
 			auth = (username, args.token)
 		else:
