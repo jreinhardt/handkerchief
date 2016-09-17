@@ -145,7 +145,7 @@ class Layout:
 
 		env = Environment(loader=PackageLoader(package,layout_root))
 		self.template = env.get_template(params['html'])
-		
+
 		for n in params['js']:
 			self.js.append({
 				'name' : n,
@@ -216,7 +216,8 @@ def fetch_issue_data(reponame,auth,local_avatars,states):
 		av_style = ""
 		avatars = []
 		for item  in comments + data['issues']:
-			url = item['user']['avatar_url']
+			#fetch avatars in size 50x50 to save space
+			url = item['user']['avatar_url'] + "&s=50"
 			avclass = 'avatar_' + item['user']['login']
 			if not avclass in avatars:
 				r = requests.get(url,auth=auth)

@@ -248,6 +248,7 @@ There are a few people that contributed to handkerchief and therefore deserve to
 * DonnchaC added code for authenticating by token
 * philfreo contributed a requirements.txt
 * avbop for porting to python 3
+* aaronpk for the API hint for resizing avatars
 
 
 License
