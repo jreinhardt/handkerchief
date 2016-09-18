@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- {{ reponame }} -->
-<html>
+<html class="h-feed">
 	<head>
 		<meta charset="utf-8"/>
 		{% for js in javascript %}
@@ -14,12 +14,12 @@
 			{{ css }}
 		</style>
 		{% endfor %}
-		<title>Issues for {{ repo['name'] }}</title>
+		<title class="p-name">Issues for {{ repo['name'] }}</title>
 	</head>
 	<body>
 		<div id="header">
 			<h1 class="repo-title">
-				<a class= "username" href="{{ repo['owner']['html_url'] }}">{{ repo['owner']['login'] }}</a>/<a class="reponame" href="{{ repo['html_url'] }}">{{ repo['name'] }}</a>
+				<a class="username p-author h-card" href="{{ repo['owner']['html_url'] }}">{{ repo['owner']['login'] }}</a>/<a class="reponame p-repo h-card" href="{{ repo['html_url'] }}">{{ repo['name'] }}</a>
 			</h1>
 		</div>
 		<div id="content">
@@ -80,11 +80,11 @@
 		
 		
 		{% for issue in issues %}
-		<div class="issue visible" data-issue="{{ issue['number'] }}" >
-			<h2 class="issue-title"> {{ issue['title'] }}  <span class="issue-id">#{{ issue['number'] }}</span></h2>
+		<div class="issue visible h-entry" data-issue="{{ issue['number'] }}" >
+			<h2 class="issue-title"><span class="p-name">{{ issue['title'] }}</span> <span class="issue-id p-issue-number">#{{ issue['number'] }}</span></h2>
 			<div class="issue-details">
-				<div class="status {{ issue['state'] }}">{{ issue['state'] }}</div>
-				<div class="issue-author"><strong>{{ issue['user']['login'] }}</strong> opened this issue <span class="timeago" data-time="{{ issue['created_at'] }}">{{ issue['created_at'] }}</span> • <span class="commentCount" data-count="{{ issue['comments'] }}"></span></div>
+				<div class="status {{ issue['state'] }} p-issue-state">{{ issue['state'] }}</div>
+				<div class="issue-author"><strong class="p-author">{{ issue['user']['login'] }}</strong> opened this issue <span class="timeago p-published" data-time="{{ issue['created_at'] }}"><a href="{{ issue['html_url'] }}" class="u-url">{{ issue['created_at'] }}</a></span> • <span class="commentCount" data-count="{{ issue['comments'] }}"></span></div>
 			</div>
 
 			{% if issue['body'] %}
@@ -94,7 +94,7 @@
 				<div class="comment-details">
 					<strong>{{ issue['user']['login'] }}</strong> commented on this issue <span class="timeago" data-time="{{ issue['created_at'] }}">{{ issue['created_at'] }}</span>
 				</div>
-				<div class="comment-content">{{ issue['body']|e }}</div>
+				<div class="comment-content p-content">{{ issue['body']|e }}</div>
 			</div>
 			{% endif %}
 
@@ -102,11 +102,11 @@
 			{% if comment['body'] %}
 			<div class="author {{ comment['user']['avatar_class'] }}">
 			</div>
-			<div class="comment">
+			<div class="comment h-entry p-comment">
 				<div class="comment-details">
-					<div class="comment-author"><strong>{{ comment['user']['login'] }}</strong> commented on this issue <span class="timeago" data-time="{{ comment['created_at'] }}">{{ comment['created_at'] }}</span></div>
+					<div class="comment-author"><strong class="p-author">{{ comment['user']['login'] }}</strong> commented on this issue <span class="timeago p-published" data-time="{{ comment['created_at'] }}"><a href="{{ comment['html_url'] }}" class="u-url">{{ comment['created_at'] }}</a></span></div>
 				</div>
-				<div class="comment-content">{{ comment['body']|e }}</div>
+				<div class="comment-content p-content p-name">{{ comment['body']|e }}</div>
 			</div>
 			{% endif %}
 			{% endfor %}
